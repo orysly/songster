@@ -31,7 +31,7 @@ export default function App() {
     const token = spotify.accessToken ?? (await spotify.refreshToken());
     const result = await playlist.loadPlaylist(input, token);
     if (!result) return;
-    game.actions.loadTracks(
+    game.actions.addPlaylistTracks(
       {
         id: result.id,
         name: result.name,
@@ -46,7 +46,7 @@ export default function App() {
     const token = spotify.accessToken ?? (await spotify.refreshToken());
     const result = await playlist.loadPlaylistById(playlistId, token);
     if (!result) return;
-    game.actions.loadTracks(
+    game.actions.addPlaylistTracks(
       {
         id: result.id,
         name: result.name,
@@ -65,7 +65,7 @@ export default function App() {
   async function playSnippet() {
     const track = game.state.turn.currentTrack;
     if (!track) return;
-    if (game.state.playlist?.id === "developer-fallback") {
+    if (game.state.playlists.some((loadedPlaylist) => loadedPlaylist.id === "developer-fallback")) {
       game.actions.markSnippetPlayed();
       return;
     }
@@ -142,7 +142,7 @@ export default function App() {
             playlistLoading={playlist.loading}
             userPlaylistsLoading={playlist.loadingUserPlaylists}
             userPlaylists={playlist.userPlaylists}
-            playlist={game.state.playlist}
+            playlists={game.state.playlists}
             players={game.state.players}
             settings={game.state.settings}
             canStart={game.canStart}

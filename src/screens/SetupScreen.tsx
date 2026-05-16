@@ -19,7 +19,7 @@ type Props = {
   playlistLoading: boolean;
   userPlaylistsLoading: boolean;
   userPlaylists: UserPlaylistOption[];
-  playlist: PlaylistMeta | null;
+  playlists: PlaylistMeta[];
   players: Player[];
   settings: GameSettings;
   canStart: boolean;
@@ -44,7 +44,7 @@ export function SetupScreen({
   playlistLoading,
   userPlaylistsLoading,
   userPlaylists,
-  playlist,
+  playlists,
   players,
   settings,
   canStart,
@@ -61,7 +61,7 @@ export function SetupScreen({
   onStart
 }: Props) {
   const realStartReady = canStart && spotifyStatus === "connected";
-  const developerReady = playlist?.id === "developer-fallback" && players.length >= 2;
+  const developerReady = playlists.some((playlist) => playlist.id === "developer-fallback") && players.length >= 2;
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top">
@@ -91,7 +91,7 @@ export function SetupScreen({
         onLoadUserPlaylists={onLoadUserPlaylists}
         onDeveloperLoad={onLoadDeveloperTracks}
       />
-      <PlaylistSummary playlist={playlist} />
+      <PlaylistSummary playlists={playlists} />
       <PlayerSetup players={players} onAdd={onAddPlayer} onEdit={onEditPlayer} onRemove={onRemovePlayer} />
       <GameSettingsPanel settings={settings} onChange={onSettingsChange} />
       <InstallPwaHint />

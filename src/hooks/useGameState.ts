@@ -5,6 +5,7 @@ import { clearGameState, loadGameState, saveGameState } from "../services/storag
 import { getRandomSnippetStartMs, shuffleTracks } from "../utils/deck";
 import { calculateRoundScore, getNextPlayerIndex, getWinner } from "../utils/scoring";
 import { insertTrackIntoTimeline, isCorrectPlacement } from "../utils/timelineRules";
+import { dedupeTracks } from "../utils/spotifyTrack";
 
 const defaultSettings: GameSettings = {
   targetScore: 100,
@@ -34,6 +35,7 @@ function createInitialState(): GameState {
     players: [],
     settings: defaultSettings,
     playlist: null,
+    playlists: [],
     deck: [],
     originalDeck: [],
     usedTrackIds: [],
@@ -154,13 +156,15 @@ export function useGameState() {
     setState((current) => ({ ...current, settings: { ...current.settings, ...settings } }));
   }
 
-  function loadTracks(playlist: PlaylistMeta, tracks: Track[]) {
-    const deck = shuffleTracks(tracks);
+  function addPlaylistTracks(playlist: PlaylistMeta, tracks: Track[]) {
     setState((current) => ({
       ...current,
       playlist,
-      deck,
-      originalDeck: deck,
+      playlists: current.playlists.some((candidate) => candidate.id === playlist.id)
+        ? current.playlists.map((candidate) => (candidate.id === playlist.id ? playlist : candidate))
+        : [...current.playlists, playlist],
+      deck: shuffleTracks(dedupeTracks([...current.deck, ...tracks])),
+      originalDeck: dedupeTracks([...current.originalDeck, ...tracks]),
       usedTrackIds: [],
       phase: "ready",
       turn: { ...emptyTurn, currentPlayerIndex: current.turn.currentPlayerIndex }
@@ -177,6 +181,14 @@ export function useGameState() {
         usableCount: fakeTracks.length,
         skippedCount: 0
       },
+      playlists: [
+        {
+          id: "developer-fallback",
+          name: "Developer UI fallback",
+          usableCount: fakeTracks.length,
+          skippedCount: 0
+        }
+      ],
       deck,
       originalDeck: deck,
       usedTrackIds: [],
@@ -346,6 +358,7 @@ export function useGameState() {
     setState((current) => ({
       ...current,
       playlist: null,
+      playlists: [],
       deck: [],
       originalDeck: [],
       usedTrackIds: [],
@@ -365,7 +378,7 @@ export function useGameState() {
       editPlayer,
       removePlayer,
       updateSettings,
-      loadTracks,
+      addPlaylistTracks,
       loadDeveloperTracks,
       startGame,
       markSnippetPlayed,

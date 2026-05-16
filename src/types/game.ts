@@ -61,6 +61,7 @@ export type GameState = {
   players: Player[];
   settings: GameSettings;
   playlist: PlaylistMeta | null;
+  playlists: PlaylistMeta[];
   deck: Track[];
   originalDeck: Track[];
   usedTrackIds: string[];

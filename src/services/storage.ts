@@ -19,7 +19,11 @@ export function loadGameState(): GameState | null {
   try {
     const parsed = JSON.parse(raw) as StoredGame;
     if (parsed.version !== GAME_VERSION) return null;
-    return { ...parsed.state, restoredFromStorage: false };
+    return {
+      ...parsed.state,
+      playlists: parsed.state.playlists ?? (parsed.state.playlist ? [parsed.state.playlist] : []),
+      restoredFromStorage: false
+    };
   } catch {
     return null;
   }
