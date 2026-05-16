@@ -2,7 +2,7 @@ import { BRAND } from "../config/brand";
 import type { GameState } from "../types/game";
 import type { SpotifyTokenSet } from "../types/spotify";
 
-const GAME_VERSION = 1;
+const GAME_VERSION = 2;
 
 type StoredGame = {
   version: number;
