@@ -28,7 +28,7 @@ type Props = {
   onDisconnectSpotify: () => void;
   onLoadPlaylist: (input: string) => Promise<void>;
   onLoadPlaylistById: (playlistId: string) => Promise<void>;
-  onLoadBuiltInPlaylists: (playlistIds: string[]) => Promise<void>;
+  onLoadBuiltInSearch: (eras: Era[], genres: Genre[]) => Promise<void>;
   onLoadUserPlaylists: () => Promise<void>;
   onLoadDeveloperTracks: () => void;
   onRemovePlaylist: (playlistId: string) => void;
@@ -55,7 +55,7 @@ export function SetupScreen({
   onDisconnectSpotify,
   onLoadPlaylist,
   onLoadPlaylistById,
-  onLoadBuiltInPlaylists,
+  onLoadBuiltInSearch,
   onLoadUserPlaylists,
   onLoadDeveloperTracks,
   onRemovePlaylist,
@@ -88,7 +88,7 @@ export function SetupScreen({
       <BuiltInCollections
         disabled={spotifyStatus !== "connected"}
         loading={playlistLoading}
-        onLoadPlaylists={onLoadBuiltInPlaylists}
+        onLoadSearch={onLoadBuiltInSearch}
       />
       
       <div className="flex items-center gap-4 py-2">

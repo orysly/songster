@@ -109,6 +109,41 @@ export async function listUserPlaylists(accessToken: string): Promise<UserPlayli
     }));
 }
 
+export async function loadDynamicSearch(
+  query: string,
+  accessToken: string,
+  maxOffset: number = 500
+): Promise<PlaylistImportResult | null> {
+  try {
+    const offset = Math.floor(Math.random() * maxOffset);
+    
+    const data = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
+      `/search?type=track&q=${encodeURIComponent(query)}&limit=50&offset=${offset}`,
+      accessToken
+    );
+
+    if (!data?.tracks?.items || data.tracks.items.length === 0) {
+      return null;
+    }
+
+    // Map bare SpotifyTrackObject items into the wrapper SpotifyPlaylistTrackItem
+    const items = data.tracks.items.map((track) => ({ track } as SpotifyPlaylistTrackItem));
+    
+    const normalized = items.map(normalizeSpotifyTrack);
+    const tracks = dedupeTracks(normalized.filter((track) => track !== null));
+
+    return {
+      id: `search-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      name: `Search: ${query}`,
+      tracks,
+      skippedCount: items.length - tracks.length
+    };
+  } catch (error) {
+    console.error("Failed to load dynamic search", error);
+    return null;
+  }
+}
+
 export async function transferPlayback(accessToken: string, deviceId: string): Promise<void> {
   await spotifyFetch<void>("/me/player", accessToken, {
     method: "PUT",

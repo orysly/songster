@@ -61,11 +61,23 @@ export default function App() {
     );
   }
 
-  async function handleLoadBuiltInPlaylists(playlistIds: string[]) {
+  async function handleLoadBuiltInSearch(eras: Era[], genres: Genre[]) {
     const token = spotify.accessToken ?? (await spotify.refreshToken());
-    for (const playlistId of playlistIds) {
-      const result = await playlist.loadPlaylistById(playlistId, token);
-      if (result) {
+    if (!token) return;
+
+    const queries = generateSearchQueries(eras, genres);
+    
+    // We will track how many succeeded so we don't spam errors if only one fails
+    let successCount = 0;
+    
+    // Execute all queries in parallel for speed
+    const results = await Promise.all(
+      queries.map(q => loadDynamicSearch(q, token))
+    );
+
+    for (const result of results) {
+      if (result && result.tracks.length > 0) {
+        successCount++;
         game.actions.addPlaylistTracks(
           {
             id: result.id,

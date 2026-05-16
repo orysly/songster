@@ -1,75 +1,51 @@
 export type Era = "1960s" | "1970s" | "1980s" | "1990s" | "2000s" | "2010s";
 export type Genre = "Pop" | "Rock" | "Hip Hop" | "Jazz" | "Hungarian";
 
-export type BuiltInPlaylist = {
-  id: string;
-  name: string;
-  eras: Era[];
-  genres: Genre[];
-};
-
-export const builtinPlaylists: BuiltInPlaylist[] = [
-  {
-    id: "37i9dQZF1DWWzBc3TOlaAV",
-    name: "60s Rock Anthems",
-    eras: ["1960s"],
-    genres: ["Rock"]
-  },
-  {
-    id: "37i9dQZF1DWTJ7xPn4vNaz",
-    name: "All Out 70s",
-    eras: ["1970s"],
-    genres: ["Pop", "Rock"]
-  },
-  {
-    id: "37i9dQZF1DX4UtSsGT1Sbe",
-    name: "All Out 80s",
-    eras: ["1980s"],
-    genres: ["Pop", "Rock"]
-  },
-  {
-    id: "37i9dQZF1DXbTxeAdrVG2l",
-    name: "All Out 90s",
-    eras: ["1990s"],
-    genres: ["Pop", "Rock", "Hip Hop"]
-  },
-  {
-    id: "37i9dQZF1DX4o1oenSJRJd",
-    name: "All Out 00s",
-    eras: ["2000s"],
-    genres: ["Pop", "Rock", "Hip Hop"]
-  },
-  {
-    id: "37i9dQZF1DX5Ejj0EkURtP",
-    name: "All Out 10s",
-    eras: ["2010s"],
-    genres: ["Pop", "Hip Hop"]
-  },
-  {
-    id: "37i9dQZF1DWXRqgorJj26U",
-    name: "Rock Classics",
-    eras: ["1970s", "1980s", "1990s", "2000s"],
-    genres: ["Rock"]
-  },
-  {
-    id: "37i9dQZF1DXbITWG1ZJKYt",
-    name: "Jazz Classics",
-    eras: ["1960s", "1970s"],
-    genres: ["Jazz"]
-  },
-  {
-    id: "37i9dQZF1DX186v583rmzp",
-    name: "I Love My 90s Hip-Hop",
-    eras: ["1990s"],
-    genres: ["Hip Hop"]
-  },
-  {
-    id: "37i9dQZF1DWZq91oLsHZvy", // Official Top Magyar
-    name: "Magyar Slágerek",
-    eras: ["1970s", "1980s", "1990s", "2000s", "2010s"],
-    genres: ["Hungarian", "Pop"]
-  }
-];
-
 export const ALL_ERAS: Era[] = ["1960s", "1970s", "1980s", "1990s", "2000s", "2010s"];
 export const ALL_GENRES: Genre[] = ["Pop", "Rock", "Hip Hop", "Jazz", "Hungarian"];
+
+const ERA_YEAR_RANGES: Record<Era, string> = {
+  "1960s": "1960-1969",
+  "1970s": "1970-1979",
+  "1980s": "1980-1989",
+  "1990s": "1990-1999",
+  "2000s": "2000-2009",
+  "2010s": "2010-2019"
+};
+
+const GENRE_MAPPING: Record<Genre, string[]> = {
+  "Pop": ["genre:pop", "genre:dance pop"],
+  "Rock": ["genre:rock", "genre:classic rock"],
+  "Hip Hop": ["genre:hip hop", "genre:rap"],
+  "Jazz": ["genre:jazz", "genre:vocal jazz"],
+  // For Hungarian, we use a broad keyword search combined with generic genre 
+  // since Spotify's Hungarian genre tagging can be sparse.
+  "Hungarian": ["genre:hungarian pop", "genre:classic hungarian pop", "hungarian"]
+};
+
+/**
+ * Generates an array of Spotify Search API queries based on the selected Eras and Genres.
+ * If multiple eras and genres are selected, it creates a Cartesian product of combinations
+ * so we can fetch a diverse spread of tracks.
+ */
+export function generateSearchQueries(eras: Era[], genres: Genre[]): string[] {
+  const queries: string[] = [];
+  
+  // Default to all if none selected, though UI shouldn't allow this
+  const activeEras = eras.length > 0 ? eras : ALL_ERAS;
+  const activeGenres = genres.length > 0 ? genres : ALL_GENRES;
+
+  for (const era of activeEras) {
+    const yearFilter = `year:${ERA_YEAR_RANGES[era]}`;
+    
+    for (const genre of activeGenres) {
+      const genreKeywords = GENRE_MAPPING[genre];
+      // Pick the primary mapping or cycle through them
+      const keyword = genreKeywords[0]; 
+      
+      queries.push(`${yearFilter} ${keyword}`);
+    }
+  }
+
+  return queries;
+}

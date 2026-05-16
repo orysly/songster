@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { builtinPlaylists, ALL_ERAS, ALL_GENRES, type Era, type Genre } from "../../data/builtinPlaylists";
+import { ALL_ERAS, ALL_GENRES, type Era, type Genre } from "../../data/builtinPlaylists";
 import { Button } from "../shared/Button";
 
 type Props = {
   disabled: boolean;
   loading: boolean;
-  onLoadPlaylists: (playlistIds: string[]) => Promise<void>;
+  onLoadSearch: (eras: Era[], genres: Genre[]) => Promise<void>;
 };
 
-export function BuiltInCollections({ disabled, loading, onLoadPlaylists }: Props) {
+export function BuiltInCollections({ disabled, loading, onLoadSearch }: Props) {
   const [selectedEras, setSelectedEras] = useState<Era[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
 
@@ -30,22 +30,7 @@ export function BuiltInCollections({ disabled, loading, onLoadPlaylists }: Props
 
   function handleGenerate() {
     if (selectedEras.length === 0 && selectedGenres.length === 0) return;
-
-    // Find all playlists that match the selected criteria
-    const matchingIds = builtinPlaylists
-      .filter((pl) => {
-        const matchesEra = selectedEras.length === 0 || pl.eras.some((e) => selectedEras.includes(e));
-        const matchesGenre = selectedGenres.length === 0 || pl.genres.some((g) => selectedGenres.includes(g));
-        return matchesEra && matchesGenre;
-      })
-      .map((pl) => pl.id);
-
-    // Filter out duplicates just in case
-    const uniqueIds = Array.from(new Set(matchingIds));
-    
-    if (uniqueIds.length > 0) {
-      void onLoadPlaylists(uniqueIds);
-    }
+    void onLoadSearch(selectedEras, selectedGenres);
   }
 
   const hasSelection = selectedEras.length > 0 || selectedGenres.length > 0;
