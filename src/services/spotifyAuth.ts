@@ -4,6 +4,7 @@ import type { SpotifyTokenSet } from "../types/spotify";
 const AUTH_URL = "https://accounts.spotify.com/authorize";
 const TOKEN_URL = "https://accounts.spotify.com/api/token";
 const PUBLIC_SPOTIFY_CLIENT_ID_FALLBACK = "7fbc1305aac84d3f8da3b9ccfa196e3a";
+let redirectCompletionPromise: Promise<SpotifyTokenSet | null> | null = null;
 
 export const SPOTIFY_SCOPES = [
   "streaming",
@@ -60,14 +61,7 @@ export async function beginSpotifyLogin(): Promise<void> {
   window.location.assign(`${AUTH_URL}?${params.toString()}`);
 }
 
-export async function completeSpotifyRedirect(): Promise<SpotifyTokenSet | null> {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  const state = params.get("state");
-  const error = params.get("error");
-  if (error) throw new Error(`Spotify sign-in failed: ${error}`);
-  if (!code) return null;
-
+async function exchangeSpotifyCode(code: string, state: string | null): Promise<SpotifyTokenSet> {
   const scratch = loadAuthScratch();
   const { clientId, redirectUri } = getSpotifyConfig();
   if (!scratch?.verifier || scratch.state !== state) throw new Error("Spotify sign-in state did not match.");
@@ -85,7 +79,10 @@ export async function completeSpotifyRedirect(): Promise<SpotifyTokenSet | null>
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body
   });
-  if (!response.ok) throw new Error("Spotify token exchange failed.");
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Spotify token exchange failed${text ? `: ${text}` : "."}`);
+  }
   const data = (await response.json()) as { access_token: string; refresh_token?: string; expires_in: number };
   const tokenSet = {
     accessToken: data.access_token,
@@ -96,6 +93,17 @@ export async function completeSpotifyRedirect(): Promise<SpotifyTokenSet | null>
   clearAuthScratch();
   window.history.replaceState({}, document.title, window.location.pathname);
   return tokenSet;
+}
+
+export function completeSpotifyRedirect(): Promise<SpotifyTokenSet | null> {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const state = params.get("state");
+  const error = params.get("error");
+  if (error) throw new Error(`Spotify sign-in failed: ${error}`);
+  if (!code) return Promise.resolve(null);
+  redirectCompletionPromise ??= exchangeSpotifyCode(code, state);
+  return redirectCompletionPromise;
 }
 
 export async function getValidAccessToken(): Promise<string | null> {
