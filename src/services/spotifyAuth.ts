@@ -3,6 +3,7 @@ import type { SpotifyTokenSet } from "../types/spotify";
 
 const AUTH_URL = "https://accounts.spotify.com/authorize";
 const TOKEN_URL = "https://accounts.spotify.com/api/token";
+const PUBLIC_SPOTIFY_CLIENT_ID_FALLBACK = "7fbc1305aac84d3f8da3b9ccfa196e3a";
 
 export const SPOTIFY_SCOPES = [
   "streaming",
@@ -15,7 +16,7 @@ export const SPOTIFY_SCOPES = [
 ];
 
 export function getSpotifyConfig(): { clientId: string; redirectUri: string; configured: boolean } {
-  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID ?? "";
+  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID || PUBLIC_SPOTIFY_CLIENT_ID_FALLBACK;
   const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI ?? window.location.origin + "/";
   return { clientId, redirectUri, configured: Boolean(clientId && redirectUri) };
 }
