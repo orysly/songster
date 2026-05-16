@@ -19,7 +19,7 @@ export function loadGameState(): GameState | null {
   try {
     const parsed = JSON.parse(raw) as StoredGame;
     if (parsed.version !== GAME_VERSION) return null;
-    return { ...parsed.state, restoredFromStorage: true };
+    return { ...parsed.state, restoredFromStorage: false };
   } catch {
     return null;
   }

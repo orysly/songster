@@ -125,10 +125,6 @@ export function useGameState() {
     [state.players, state.winnerPlayerId]
   );
 
-  function dismissResume() {
-    setState((current) => ({ ...current, restoredFromStorage: false }));
-  }
-
   function addPlayer(name: string) {
     const trimmed = name.trim();
     if (!trimmed) return;
@@ -365,7 +361,6 @@ export function useGameState() {
     winner,
     canStart,
     actions: {
-      dismissResume,
       addPlayer,
       editPlayer,
       removePlayer,

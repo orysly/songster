@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ResumeGameBanner } from "./components/pwa/ResumeGameBanner";
 import { ErrorBanner } from "./components/shared/ErrorBanner";
 import { useGameState } from "./hooks/useGameState";
 import { useSpotifyAuth } from "./hooks/useSpotifyAuth";
@@ -105,7 +104,6 @@ export default function App() {
       <div className="relative">
         <div className="mx-auto w-full max-w-4xl px-4 pt-3">
           {offline ? <ErrorBanner message="You are offline. The app shell can open, but Spotify gameplay needs internet." /> : null}
-          {game.state.restoredFromStorage ? <ResumeGameBanner onResume={game.actions.dismissResume} /> : null}
         </div>
 
         {game.state.phase === "playing" && currentPlayer ? (
