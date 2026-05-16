@@ -43,6 +43,9 @@ export async function beginSpotifyLogin(): Promise<void> {
   const { clientId, redirectUri, configured } = getSpotifyConfig();
   if (!configured) throw new Error("Spotify client ID is missing.");
 
+  clearTokenSet();
+  clearAuthScratch();
+
   const verifier = randomString(96);
   const state = randomString(24);
   const challenge = base64UrlEncode(await sha256(verifier));
@@ -55,7 +58,8 @@ export async function beginSpotifyLogin(): Promise<void> {
     redirect_uri: redirectUri,
     state,
     code_challenge_method: "S256",
-    code_challenge: challenge
+    code_challenge: challenge,
+    show_dialog: "true"
   });
 
   window.location.assign(`${AUTH_URL}?${params.toString()}`);
