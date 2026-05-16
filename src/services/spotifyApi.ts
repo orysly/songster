@@ -114,18 +114,30 @@ export async function loadDynamicSearch(
   accessToken: string
 ): Promise<PlaylistImportResult | null> {
   try {
-    // Fetch the 50 most popular tracks for the query (offset=0)
-    const data = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-      `/search?type=track&q=${encodeURIComponent(query)}&limit=50`,
-      accessToken
+    // Spotify lowered the /v1/search limit to 10 in 2026. 
+    // To get 50 tracks, we execute 5 parallel requests with offsets 0, 10, 20, 30, 40.
+    const offsets = [0, 10, 20, 30, 40];
+    
+    const pages = await Promise.all(
+      offsets.map(offset => 
+        spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
+          `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}`,
+          accessToken
+        ).catch(() => null) // Ignore out-of-bounds errors on smaller genres
+      )
     );
 
-    if (!data?.tracks?.items || data.tracks.items.length === 0) {
+    // Flatten all valid track items from all 5 pages
+    const rawItems = pages
+      .filter(p => p && p.tracks && p.tracks.items)
+      .flatMap(p => p!.tracks.items);
+
+    if (rawItems.length === 0) {
       return null;
     }
 
     // Map bare SpotifyTrackObject items into the wrapper SpotifyPlaylistTrackItem
-    const items = data.tracks.items.map((track) => ({ track } as SpotifyPlaylistTrackItem));
+    const items = rawItems.map((track) => ({ track } as SpotifyPlaylistTrackItem));
     
     const normalized = items.map(normalizeSpotifyTrack);
     const tracks = dedupeTracks(normalized.filter((track) => track !== null));
@@ -168,7 +180,7 @@ export async function pausePlayback(accessToken: string): Promise<void> {
 export async function fetchOriginalReleaseDate(isrc: string, accessToken: string): Promise<{ releaseDate: string; releaseYear: number } | null> {
   try {
     const data = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-      `/search?type=track&q=isrc:${isrc}&limit=50`,
+      `/search?type=track&q=isrc:${isrc}&limit=10`,
       accessToken
     );
 
