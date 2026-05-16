@@ -4,6 +4,7 @@ import { useGameState } from "./hooks/useGameState";
 import { useSpotifyAuth } from "./hooks/useSpotifyAuth";
 import { useSpotifyPlayer } from "./hooks/useSpotifyPlayer";
 import { useSpotifyPlaylist } from "./hooks/useSpotifyPlaylist";
+import { searchItunesReleaseDate } from "./services/itunesApi";
 import { fetchOriginalReleaseDate } from "./services/spotifyApi";
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
@@ -111,8 +112,13 @@ export default function App() {
       const resolveDate = async () => {
         try {
           const token = spotify.accessToken ?? (await spotify.refreshToken());
-          if (!token) return;
-          const result = await fetchOriginalReleaseDate(track.isrc!, token);
+          
+          let result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
+          
+          if (!result && token && track.isrc) {
+            result = await fetchOriginalReleaseDate(track.isrc, token);
+          }
+          
           if (active && result) {
             game.actions.updateTrackReleaseDate(track.id, result.releaseDate, result.releaseYear);
           }
