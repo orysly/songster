@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Timeline Tracks app icon">
+  <rect width="192" height="192" rx="42" fill="#101820"/>
+  <circle cx="56" cy="56" r="18" fill="#f7c948"/>
+  <circle cx="136" cy="136" r="18" fill="#2ec4b6"/>
+  <path d="M56 56h48c18 0 32 14 32 32v48" fill="none" stroke="#fff7e8" stroke-width="14" stroke-linecap="round"/>
+  <path d="M70 122c16-10 36-10 52 0" fill="none" stroke="#ff6b6b" stroke-width="12" stroke-linecap="round"/>
+</svg>
