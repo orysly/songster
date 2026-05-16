@@ -57,8 +57,14 @@ export type SpotifyPlaylistResponse = {
 export type SpotifyPlaylistSummary = {
   id: string;
   name: string;
+  collaborative?: boolean;
   tracks: { total: number };
-  owner?: { display_name?: string };
+  owner?: { id?: string; display_name?: string };
+};
+
+export type SpotifyCurrentUser = {
+  id: string;
+  display_name?: string;
 };
 
 export type SpotifyPageResponse<T> = {

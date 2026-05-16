@@ -1,5 +1,6 @@
 import type {
   PlaylistImportResult,
+  SpotifyCurrentUser,
   SpotifyPageResponse,
   SpotifyPlaylistResponse,
   SpotifyPlaylistSummary,
@@ -37,7 +38,7 @@ export async function spotifyFetch<T>(
       }
       if (url.includes("/me/playlists") || url.includes("/playlists/")) {
         throw new Error(
-          "Spotify blocked playlist access. Disconnect and connect again so the app gets playlist permission, and make sure this Spotify account is added as a user in your Spotify Developer app."
+          "Spotify blocked playlist access. In Development Mode, Songster can import playlists you own or collaborate on. Copy the songs into one of your own playlists, then load that playlist."
         );
       }
       throw new Error("Spotify blocked this request. Disconnect and connect again, then try once more.");
@@ -85,9 +86,10 @@ export async function importPlaylist(playlistId: string, accessToken: string): P
 }
 
 export async function listUserPlaylists(accessToken: string): Promise<UserPlaylistOption[]> {
+  const currentUser = await spotifyFetch<SpotifyCurrentUser>("/me?fields=id,display_name", accessToken);
   const items: SpotifyPlaylistSummary[] = [];
   let next: string | null =
-    `${API_BASE}/me/playlists?limit=50&fields=items(id,name,tracks(total),owner(display_name)),next,total`;
+    `${API_BASE}/me/playlists?limit=50&fields=items(id,name,collaborative,tracks(total),owner(id,display_name)),next,total`;
 
   while (next) {
     const pageUrl = next;
@@ -96,12 +98,14 @@ export async function listUserPlaylists(accessToken: string): Promise<UserPlayli
     next = page.next;
   }
 
-  return items.map((playlist) => ({
-    id: playlist.id,
-    name: playlist.name,
-    trackCount: playlist.tracks.total,
-    ownerName: playlist.owner?.display_name
-  }));
+  return items
+    .filter((playlist) => playlist.owner?.id === currentUser.id || playlist.collaborative)
+    .map((playlist) => ({
+      id: playlist.id,
+      name: playlist.name,
+      trackCount: playlist.tracks.total,
+      ownerName: playlist.owner?.display_name
+    }));
 }
 
 export async function transferPlayback(accessToken: string, deviceId: string): Promise<void> {

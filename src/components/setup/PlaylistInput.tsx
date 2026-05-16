@@ -67,7 +67,7 @@ export function PlaylistInput({
         value={selectedPlaylistId}
         onChange={(event) => setSelectedPlaylistId(event.target.value)}
       >
-        <option value="">{userPlaylists.length ? "Select a playlist" : "Refresh to show playlists"}</option>
+        <option value="">{userPlaylists.length ? "Select a playlist" : "Refresh to show owned playlists"}</option>
         {userPlaylists.map((playlist) => (
           <option key={playlist.id} value={playlist.id}>
             {playlist.name} ({playlist.trackCount})
@@ -83,6 +83,10 @@ export function PlaylistInput({
       >
         Load selected playlist
       </Button>
+      <p className="mt-3 text-sm leading-6 text-white/55">
+        Spotify currently allows import from playlists you own or collaborate on. To use another playlist, copy its
+        songs into one of your own playlists first.
+      </p>
       {showDeveloperFallback ? (
         <Button className="mt-2 w-full" variant="ghost" onClick={onDeveloperLoad}>
           Load developer fallback
