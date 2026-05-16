@@ -368,6 +368,17 @@ export function useGameState() {
     }));
   }
 
+  function abortGame() {
+    setState((current) => ({
+      ...current,
+      deck: shuffleTracks(current.originalDeck),
+      usedTrackIds: [],
+      phase: current.originalDeck.length > 0 ? "ready" : "setup",
+      turn: emptyTurn,
+      winnerPlayerId: null
+    }));
+  }
+
   return {
     state,
     currentPlayer,
@@ -391,7 +402,8 @@ export function useGameState() {
       playAgainSamePlayers,
       lowerTargetScore,
       newGame,
-      changePlaylist
+      changePlaylist,
+      abortGame
     }
   };
 }

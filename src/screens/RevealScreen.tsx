@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { ScoreToggle } from "../components/game/ScoreToggle";
 import { Button } from "../components/shared/Button";
 import type { GameState, Player } from "../types/game";
@@ -10,9 +10,10 @@ type Props = {
   onToggle: (kind: "artistCorrect" | "titleCorrect", value: boolean) => void;
   onApplyPoints: () => void;
   onNextPlayer: () => void;
+  onAbortGame: () => void;
 };
 
-export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, onNextPlayer }: Props) {
+export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, onNextPlayer, onAbortGame }: Props) {
   const track = state.turn.currentTrack;
   if (!track) return null;
   const placementCorrect = Boolean(state.turn.placementCorrect);
@@ -21,7 +22,16 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top text-white">
       <header className="pt-4">
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Reveal</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Reveal</p>
+          <button
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/55 ring-1 ring-white/15"
+            onClick={onAbortGame}
+          >
+            <X className="h-4 w-4" />
+            Abort
+          </button>
+        </div>
         <h1 className="mt-2 text-4xl font-black leading-none">{placementCorrect ? "Nice placement" : "Not this time"}</h1>
       </header>
       <section className="rounded-3xl bg-white/10 p-4 ring-1 ring-white/15">

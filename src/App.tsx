@@ -92,6 +92,11 @@ export default function App() {
     game.actions.nextPlayer();
   }
 
+  async function abortGame() {
+    await player.pause();
+    game.actions.abortGame();
+  }
+
   useEffect(() => {
     if (game.state.phase === "winner") void player.pause();
   }, [game.state.phase]);
@@ -116,6 +121,7 @@ export default function App() {
             onLockPlacement={lockPlacement}
             onSelectInsertion={game.actions.selectInsertion}
             onSkipTrack={skipTrack}
+            onAbortGame={abortGame}
             onClearPlaybackError={player.clearError}
           />
         ) : game.state.phase === "reveal" && currentPlayer ? (
@@ -125,6 +131,7 @@ export default function App() {
             onToggle={game.actions.setScoreToggle}
             onApplyPoints={game.actions.applyPoints}
             onNextPlayer={nextPlayer}
+            onAbortGame={abortGame}
           />
         ) : game.state.phase === "winner" ? (
           <WinnerScreen

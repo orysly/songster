@@ -1,4 +1,4 @@
-import { Check, SkipForward } from "lucide-react";
+import { Check, SkipForward, X } from "lucide-react";
 import { MysteryTrackCard } from "../components/game/MysteryTrackCard";
 import { Timeline } from "../components/game/Timeline";
 import { Button } from "../components/shared/Button";
@@ -16,6 +16,7 @@ type Props = {
   onLockPlacement: () => void;
   onSelectInsertion: (index: number) => void;
   onSkipTrack: () => void;
+  onAbortGame: () => void;
   onClearPlaybackError: () => void;
 };
 
@@ -28,6 +29,7 @@ export function GameScreen({
   onLockPlacement,
   onSelectInsertion,
   onSkipTrack,
+  onAbortGame,
   onClearPlaybackError
 }: Props) {
   const selected = state.turn.selectedInsertionIndex;
@@ -36,7 +38,16 @@ export function GameScreen({
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top text-white">
       <header className="pt-4">
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Round {state.turn.roundNumber}</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Round {state.turn.roundNumber}</p>
+          <button
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/55 ring-1 ring-white/15"
+            onClick={onAbortGame}
+          >
+            <X className="h-4 w-4" />
+            Abort
+          </button>
+        </div>
         <h1 className="mt-2 text-4xl font-black leading-none">{currentPlayer.name}&apos;s turn</h1>
         <p className="mt-2 text-white/65">{currentPlayer.score} points</p>
       </header>
