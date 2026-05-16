@@ -32,7 +32,15 @@ export async function spotifyFetch<T>(
       throw new Error("Spotify needs a fresh connection. Disconnect and connect Spotify again.");
     }
     if (response.status === 403) {
-      throw new Error("Spotify blocked this request. Check that the signed-in account is allowed to use this Spotify app and has Premium.");
+      if (url.includes("/me/player")) {
+        throw new Error("Spotify blocked playback. The host account needs Spotify Premium, and playback must be started from a user tap.");
+      }
+      if (url.includes("/me/playlists") || url.includes("/playlists/")) {
+        throw new Error(
+          "Spotify blocked playlist access. Disconnect and connect again so the app gets playlist permission, and make sure this Spotify account is added as a user in your Spotify Developer app."
+        );
+      }
+      throw new Error("Spotify blocked this request. Disconnect and connect again, then try once more.");
     }
     if (response.status === 404 && url.includes("/playlists/")) {
       throw new Error(
