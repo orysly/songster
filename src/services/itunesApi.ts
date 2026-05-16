@@ -16,8 +16,9 @@ export async function searchItunesReleaseDate(
   artist: string
 ): Promise<{ releaseDate: string; releaseYear: number } | null> {
   try {
-    // Basic sanitization to improve search by removing "(feat. X)"
-    const cleanTitle = title.replace(/\(feat\..*?\)|\(with.*?\)/i, "").trim();
+    // Aggressively clean the title to remove " - Remastered", "(Live)", etc.
+    // iTunes fails to return results if we pass exact Spotify remastered titles.
+    const cleanTitle = title.split(/[-(\[]/)[0].trim();
     const query = encodeURIComponent(`${cleanTitle} ${artist}`);
     
     const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`);
