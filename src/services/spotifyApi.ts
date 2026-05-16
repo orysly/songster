@@ -46,12 +46,17 @@ export async function spotifyFetch<T>(
 
 export async function importPlaylist(playlistId: string, accessToken: string): Promise<PlaylistImportResult> {
   const playlist = await spotifyFetch<SpotifyPlaylistResponse>(
-    `/playlists/${playlistId}?fields=id,name,tracks(items(track(id,name,type,is_local,is_playable,available_markets,uri,duration_ms,preview_url,external_urls,artists(name),album(name,release_date,images))),next,total)`,
+    `/playlists/${playlistId}?fields=id,name`,
     accessToken
   );
 
-  const items: SpotifyPlaylistTrackItem[] = [...playlist.tracks.items];
-  let next = playlist.tracks.next;
+  const firstPage = await spotifyFetch<SpotifyPageResponse<SpotifyPlaylistTrackItem>>(
+    `/playlists/${playlistId}/tracks?limit=100&fields=items(track(id,name,type,is_local,is_playable,available_markets,uri,duration_ms,preview_url,external_urls,artists(name),album(name,release_date,images))),next,total`,
+    accessToken
+  );
+
+  const items: SpotifyPlaylistTrackItem[] = [...firstPage.items];
+  let next = firstPage.next;
   while (next) {
     const page = await spotifyFetch<SpotifyPageResponse<SpotifyPlaylistTrackItem>>(
       next,
