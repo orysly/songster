@@ -59,7 +59,7 @@ export async function importPlaylist(playlistId: string, accessToken: string): P
   );
 
   const firstPage = await spotifyFetch<SpotifyPageResponse<SpotifyPlaylistTrackItem>>(
-    `/playlists/${playlistId}/tracks?limit=100&fields=items(track(id,name,type,is_local,is_playable,available_markets,uri,duration_ms,preview_url,external_urls,artists(name),album(name,release_date,images))),next,total`,
+    `/playlists/${playlistId}/items?limit=100&fields=items(item(id,name,type,is_local,is_playable,uri,duration_ms,preview_url,external_urls,artists(name),album(name,release_date,images))),next,total`,
     accessToken
   );
 

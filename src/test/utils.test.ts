@@ -58,6 +58,24 @@ describe("spotify playlist utilities", () => {
     expect(normalizeSpotifyTrack({ track: null })).toBeNull();
     expect(normalizeSpotifyTrack({ track: { id: "ep", name: "Episode", type: "episode" } })).toBeNull();
   });
+
+  it("normalizes the renamed Spotify playlist item shape", () => {
+    expect(
+      normalizeSpotifyTrack({
+        item: {
+          id: "new-shape",
+          name: "Track",
+          type: "track",
+          uri: "spotify:track:new-shape",
+          duration_ms: 200000,
+          external_urls: { spotify: "https://open.spotify.com/track/new-shape" },
+          artists: [{ name: "Artist" }],
+          album: { name: "Album", release_date: "2010", images: [] },
+          preview_url: null
+        }
+      })?.id
+    ).toBe("new-shape");
+  });
 });
 
 describe("deck utilities", () => {

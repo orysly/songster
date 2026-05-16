@@ -31,7 +31,7 @@ export function getReleaseYear(releaseDate: string): number | null {
 }
 
 export function normalizeSpotifyTrack(item: SpotifyPlaylistTrackItem): Track | null {
-  const source = item.track;
+  const source = item.track ?? item.item;
   if (!source) return null;
   if (source.type && source.type !== "track") return null;
   if (source.is_local) return null;

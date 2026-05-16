@@ -40,7 +40,8 @@ export type SpotifyTrackObject = {
 };
 
 export type SpotifyPlaylistTrackItem = {
-  track: SpotifyTrackObject | null;
+  track?: SpotifyTrackObject | null;
+  item?: SpotifyTrackObject | null;
 };
 
 export type SpotifyPlaylistResponse = {
