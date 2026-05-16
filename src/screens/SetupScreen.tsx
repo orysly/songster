@@ -8,6 +8,7 @@ import { PlaylistInput } from "../components/setup/PlaylistInput";
 import { PlaylistSummary } from "../components/setup/PlaylistSummary";
 import { PlayerSetup } from "../components/setup/PlayerSetup";
 import { SpotifyConnectButton } from "../components/setup/SpotifyConnectButton";
+import { BuiltInCollections } from "../components/setup/BuiltInCollections";
 import { Logo } from "../components/shared/Logo";
 import { BRAND } from "../config/brand";
 
@@ -27,6 +28,7 @@ type Props = {
   onDisconnectSpotify: () => void;
   onLoadPlaylist: (input: string) => Promise<void>;
   onLoadPlaylistById: (playlistId: string) => Promise<void>;
+  onLoadBuiltInPlaylists: (playlistIds: string[]) => Promise<void>;
   onLoadUserPlaylists: () => Promise<void>;
   onLoadDeveloperTracks: () => void;
   onRemovePlaylist: (playlistId: string) => void;
@@ -53,6 +55,7 @@ export function SetupScreen({
   onDisconnectSpotify,
   onLoadPlaylist,
   onLoadPlaylistById,
+  onLoadBuiltInPlaylists,
   onLoadUserPlaylists,
   onLoadDeveloperTracks,
   onRemovePlaylist,
@@ -82,6 +85,18 @@ export function SetupScreen({
         onConnect={onConnectSpotify}
         onDisconnect={onDisconnectSpotify}
       />
+      <BuiltInCollections
+        disabled={spotifyStatus !== "connected"}
+        loading={playlistLoading}
+        onLoadPlaylists={onLoadBuiltInPlaylists}
+      />
+      
+      <div className="flex items-center gap-4 py-2">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-sm font-bold uppercase tracking-wider text-white/30">Or custom</span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
       <PlaylistInput
         loading={playlistLoading}
         loadingUserPlaylists={userPlaylistsLoading}

@@ -61,6 +61,25 @@ export default function App() {
     );
   }
 
+  async function handleLoadBuiltInPlaylists(playlistIds: string[]) {
+    const token = spotify.accessToken ?? (await spotify.refreshToken());
+    for (const playlistId of playlistIds) {
+      const result = await playlist.loadPlaylistById(playlistId, token);
+      if (result) {
+        game.actions.addPlaylistTracks(
+          {
+            id: result.id,
+            name: result.name,
+            usableCount: result.tracks.length,
+            skippedCount: result.skippedCount,
+            tracks: result.tracks
+          },
+          result.tracks
+        );
+      }
+    }
+  }
+
   async function handleLoadUserPlaylists() {
     const token = spotify.accessToken ?? (await spotify.refreshToken());
     await playlist.loadUserPlaylists(token);
@@ -189,6 +208,7 @@ export default function App() {
             onDisconnectSpotify={spotify.disconnect}
             onLoadPlaylist={handleLoadPlaylist}
             onLoadPlaylistById={handleLoadPlaylistById}
+            onLoadBuiltInPlaylists={handleLoadBuiltInPlaylists}
             onLoadUserPlaylists={handleLoadUserPlaylists}
             onLoadDeveloperTracks={game.actions.loadDeveloperTracks}
             onRemovePlaylist={game.actions.removePlaylist}
