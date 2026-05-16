@@ -37,19 +37,33 @@ export async function searchItunesReleaseDate(
     const targetArtistNormalized = normalizeStr(artist);
     const targetArtistWords = targetArtistNormalized.split(/\s+/);
 
+    const targetTitleNormalized = normalizeStr(cleanTitle);
+    const targetTitleWords = targetTitleNormalized.split(/\s+/).filter(w => w.length > 2);
+
     for (const item of data.results) {
       if (!item.releaseDate) continue;
       
       const itemArtistNormalized = normalizeStr(item.artistName);
+      const itemTitleNormalized = normalizeStr(item.trackName);
       
       // Ensure the artist roughly matches (check if at least one significant word matches)
       // This handles "Pál Szécsi" vs "Szécsi Pál"
-      const hasMatch = targetArtistWords.some(word => 
+      const hasArtistMatch = targetArtistWords.some(word => 
         word.length > 2 && itemArtistNormalized.includes(word)
       );
 
-      if (!hasMatch && targetArtistWords.length > 0) {
+      if (!hasArtistMatch && targetArtistWords.length > 0) {
          continue;
+      }
+
+      // Ensure the track title roughly matches to avoid picking a completely different song 
+      // from the same artist that happens to be in a compilation matching the search terms.
+      const hasTitleMatch = targetTitleWords.length === 0 || targetTitleWords.some(word => 
+        itemTitleNormalized.includes(word)
+      );
+
+      if (!hasTitleMatch) {
+        continue;
       }
 
       // iTunes returns ISO dates like "1975-10-31T12:00:00Z"
