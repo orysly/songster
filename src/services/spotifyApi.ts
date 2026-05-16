@@ -115,11 +115,15 @@ export async function loadDynamicSearch(
 ): Promise<PlaylistImportResult | null> {
   try {
     // Spotify lowered the /v1/search limit to 10 in 2026. 
-    // To get 50 tracks, we execute 5 parallel requests with offsets 0, 10, 20, 30, 40.
-    const offsets = [0, 10, 20, 30, 40];
+    // We want 50 tracks, but we also want variety from the "Top 150" hits.
+    // So we generate all possible offsets up to 140, shuffle them, and pick 5.
+    const allTopOffsets = Array.from({ length: 15 }, (_, i) => i * 10);
+    const selectedOffsets = allTopOffsets
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5);
     
     const pages = await Promise.all(
-      offsets.map(offset => 
+      selectedOffsets.map(offset => 
         spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
           `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}`,
           accessToken
@@ -142,11 +146,14 @@ export async function loadDynamicSearch(
     const normalized = items.map(normalizeSpotifyTrack);
     const tracks = dedupeTracks(normalized.filter((track) => track !== null));
 
+    // Just an extra shuffle so the blocks of 10 are completely randomized
+    const finalTracks = tracks.sort(() => Math.random() - 0.5);
+
     return {
       id: `search-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       name: `Search: ${query}`,
-      tracks,
-      skippedCount: items.length - tracks.length
+      tracks: finalTracks,
+      skippedCount: items.length - finalTracks.length
     };
   } catch (error) {
     console.error("Failed to load dynamic search", error);
