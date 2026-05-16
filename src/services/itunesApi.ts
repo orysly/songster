@@ -29,14 +29,25 @@ export async function searchItunesReleaseDate(
     let oldestDateStr: string | null = null;
     let oldestYear: number = 9999;
 
-    // A loose matcher for the artist name to filter out covers
-    const targetArtistLower = artist.toLowerCase();
+    // Normalize strings to remove accents/diacritics
+    const normalizeStr = (str: string) => 
+      str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    const targetArtistNormalized = normalizeStr(artist);
+    const targetArtistWords = targetArtistNormalized.split(/\s+/);
 
     for (const item of data.results) {
       if (!item.releaseDate) continue;
       
-      // Ensure the artist roughly matches to avoid covers by other bands
-      if (!item.artistName.toLowerCase().includes(targetArtistLower)) {
+      const itemArtistNormalized = normalizeStr(item.artistName);
+      
+      // Ensure the artist roughly matches (check if at least one significant word matches)
+      // This handles "Pál Szécsi" vs "Szécsi Pál"
+      const hasMatch = targetArtistWords.some(word => 
+        word.length > 2 && itemArtistNormalized.includes(word)
+      );
+
+      if (!hasMatch && targetArtistWords.length > 0) {
          continue;
       }
 
