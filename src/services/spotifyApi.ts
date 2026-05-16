@@ -115,9 +115,9 @@ export async function loadDynamicSearch(
 ): Promise<PlaylistImportResult | null> {
   try {
     // Spotify lowered the /v1/search limit to 10 in 2026. 
-    // We want 50 tracks, but we also want variety from the "Top 150" hits.
-    // So we generate all possible offsets up to 140, shuffle them, and pick 5.
-    const allTopOffsets = Array.from({ length: 15 }, (_, i) => i * 10);
+    // We want 50 tracks, but we also want variety from the "Top 100" hits.
+    // So we generate all possible offsets up to 90, shuffle them, and pick 5.
+    const allTopOffsets = Array.from({ length: 10 }, (_, i) => i * 10);
     const selectedOffsets = allTopOffsets
       .sort(() => Math.random() - 0.5)
       .slice(0, 5);
