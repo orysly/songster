@@ -125,7 +125,7 @@ export async function loadDynamicSearch(
     const pages = await Promise.all(
       selectedOffsets.map(offset => 
         spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-          `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}`,
+          `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}&market=HU`,
           accessToken
         ).catch(() => null) // Ignore out-of-bounds errors on smaller genres
       )

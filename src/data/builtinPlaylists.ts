@@ -18,9 +18,8 @@ const GENRE_MAPPING: Record<Genre, string[]> = {
   "Rock": ["genre:rock", "genre:classic rock"],
   "Hip Hop": ["genre:hip hop", "genre:rap"],
   "Jazz": ["genre:jazz", "genre:vocal jazz"],
-  // For Hungarian, we use a broad keyword search combined with generic genre 
-  // since Spotify's Hungarian genre tagging can be sparse.
-  "Hungarian": ["genre:hungarian pop", "genre:classic hungarian pop", "hungarian"]
+  // For Hungarian, we use a broad OR query to capture pop, rock, and alternative hits
+  "Hungarian": ["genre:hungarian OR genre:hungarian pop OR genre:hungarian rock OR genre:classic hungarian pop"]
 };
 
 /**
