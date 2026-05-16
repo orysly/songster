@@ -161,8 +161,8 @@ export function useGameState() {
       ...current,
       playlist,
       playlists: current.playlists.some((candidate) => candidate.id === playlist.id)
-        ? current.playlists.map((candidate) => (candidate.id === playlist.id ? playlist : candidate))
-        : [...current.playlists, playlist],
+        ? current.playlists.map((candidate) => (candidate.id === playlist.id ? { ...playlist, tracks } : candidate))
+        : [...current.playlists, { ...playlist, tracks }],
       deck: shuffleTracks(dedupeTracks([...current.deck, ...tracks])),
       originalDeck: dedupeTracks([...current.originalDeck, ...tracks]),
       usedTrackIds: [],
@@ -179,14 +179,16 @@ export function useGameState() {
         id: "developer-fallback",
         name: "Developer UI fallback",
         usableCount: fakeTracks.length,
-        skippedCount: 0
+        skippedCount: 0,
+        tracks: fakeTracks
       },
       playlists: [
         {
           id: "developer-fallback",
           name: "Developer UI fallback",
           usableCount: fakeTracks.length,
-          skippedCount: 0
+          skippedCount: 0,
+          tracks: fakeTracks
         }
       ],
       deck,
@@ -368,6 +370,25 @@ export function useGameState() {
     }));
   }
 
+  function removePlaylist(playlistId: string) {
+    setState((current) => {
+      const playlists = current.playlists.filter((playlist) => playlist.id !== playlistId);
+      const tracks = dedupeTracks(playlists.flatMap((playlist) => playlist.tracks));
+      const deck = shuffleTracks(tracks);
+      return {
+        ...current,
+        playlist: playlists.at(-1) ?? null,
+        playlists,
+        deck,
+        originalDeck: tracks,
+        usedTrackIds: [],
+        phase: playlists.length > 0 ? "ready" : "setup",
+        turn: emptyTurn,
+        winnerPlayerId: null
+      };
+    });
+  }
+
   function abortGame() {
     setState((current) => ({
       ...current,
@@ -403,7 +424,8 @@ export function useGameState() {
       lowerTargetScore,
       newGame,
       changePlaylist,
-      abortGame
+      abortGame,
+      removePlaylist
     }
   };
 }

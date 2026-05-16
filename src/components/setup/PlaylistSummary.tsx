@@ -1,6 +1,12 @@
 import type { PlaylistMeta } from "../../types/game";
 
-export function PlaylistSummary({ playlists }: { playlists: PlaylistMeta[] }) {
+export function PlaylistSummary({
+  playlists,
+  onRemovePlaylist
+}: {
+  playlists: PlaylistMeta[];
+  onRemovePlaylist: (playlistId: string) => void;
+}) {
   if (playlists.length === 0) return null;
   const usableCount = playlists.reduce((total, playlist) => total + playlist.usableCount, 0);
   const skippedCount = playlists.reduce((total, playlist) => total + playlist.skippedCount, 0);
@@ -15,6 +21,12 @@ export function PlaylistSummary({ playlists }: { playlists: PlaylistMeta[] }) {
           <div key={playlist.id} className="flex items-center justify-between gap-3 rounded-xl bg-white/10 p-3">
             <span className="min-w-0 flex-1 truncate font-bold">{playlist.name}</span>
             <span className="shrink-0 text-sm text-white/60">{playlist.usableCount} songs</span>
+            <button
+              className="shrink-0 rounded-lg px-3 py-2 text-sm font-bold text-white/55 ring-1 ring-white/15"
+              onClick={() => onRemovePlaylist(playlist.id)}
+            >
+              Remove
+            </button>
           </div>
         ))}
       </div>

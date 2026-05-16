@@ -21,7 +21,10 @@ export function loadGameState(): GameState | null {
     if (parsed.version !== GAME_VERSION) return null;
     return {
       ...parsed.state,
-      playlists: parsed.state.playlists ?? (parsed.state.playlist ? [parsed.state.playlist] : []),
+      playlists: (parsed.state.playlists ?? (parsed.state.playlist ? [parsed.state.playlist] : [])).map((playlist) => ({
+        ...playlist,
+        tracks: playlist.tracks ?? []
+      })),
       restoredFromStorage: false
     };
   } catch {

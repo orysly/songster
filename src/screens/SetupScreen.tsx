@@ -29,6 +29,7 @@ type Props = {
   onLoadPlaylistById: (playlistId: string) => Promise<void>;
   onLoadUserPlaylists: () => Promise<void>;
   onLoadDeveloperTracks: () => void;
+  onRemovePlaylist: (playlistId: string) => void;
   onAddPlayer: (name: string) => void;
   onEditPlayer: (id: string, name: string) => void;
   onRemovePlayer: (id: string) => void;
@@ -54,6 +55,7 @@ export function SetupScreen({
   onLoadPlaylistById,
   onLoadUserPlaylists,
   onLoadDeveloperTracks,
+  onRemovePlaylist,
   onAddPlayer,
   onEditPlayer,
   onRemovePlayer,
@@ -91,7 +93,7 @@ export function SetupScreen({
         onLoadUserPlaylists={onLoadUserPlaylists}
         onDeveloperLoad={onLoadDeveloperTracks}
       />
-      <PlaylistSummary playlists={playlists} />
+      <PlaylistSummary playlists={playlists} onRemovePlaylist={onRemovePlaylist} />
       <PlayerSetup players={players} onAdd={onAddPlayer} onEdit={onEditPlayer} onRemove={onRemovePlayer} />
       <GameSettingsPanel settings={settings} onChange={onSettingsChange} />
       <InstallPwaHint />

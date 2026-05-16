@@ -36,7 +36,8 @@ export default function App() {
         id: result.id,
         name: result.name,
         usableCount: result.tracks.length,
-        skippedCount: result.skippedCount
+        skippedCount: result.skippedCount,
+        tracks: result.tracks
       },
       result.tracks
     );
@@ -51,7 +52,8 @@ export default function App() {
         id: result.id,
         name: result.name,
         usableCount: result.tracks.length,
-        skippedCount: result.skippedCount
+        skippedCount: result.skippedCount,
+        tracks: result.tracks
       },
       result.tracks
     );
@@ -159,6 +161,7 @@ export default function App() {
             onLoadPlaylistById={handleLoadPlaylistById}
             onLoadUserPlaylists={handleLoadUserPlaylists}
             onLoadDeveloperTracks={game.actions.loadDeveloperTracks}
+            onRemovePlaylist={game.actions.removePlaylist}
             onAddPlayer={game.actions.addPlayer}
             onEditPlayer={game.actions.editPlayer}
             onRemovePlayer={game.actions.removePlayer}

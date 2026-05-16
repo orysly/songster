@@ -55,6 +55,7 @@ export type PlaylistMeta = {
   name: string;
   usableCount: number;
   skippedCount: number;
+  tracks: Track[];
 };
 
 export type GameState = {
