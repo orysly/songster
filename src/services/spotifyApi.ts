@@ -21,6 +21,17 @@ export async function spotifyFetch<T>(
   if (response.status === 204) return undefined as T;
   if (!response.ok) {
     const text = await response.text();
+    if (response.status === 401) {
+      throw new Error("Spotify needs a fresh connection. Disconnect and connect Spotify again.");
+    }
+    if (response.status === 403) {
+      throw new Error("Spotify blocked this request. Check that the signed-in account is allowed to use this Spotify app and has Premium.");
+    }
+    if (response.status === 404 && url.includes("/playlists/")) {
+      throw new Error(
+        "Spotify could not find that playlist through the Web API. Try a regular public or private playlist from your library instead of a Spotify Mix, Radio, Blend, or other generated playlist."
+      );
+    }
     throw new Error(text || `Spotify request failed with ${response.status}`);
   }
   return (await response.json()) as T;

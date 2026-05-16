@@ -58,6 +58,7 @@ Open the app in Safari, then use Share → Add to Home Screen. iOS requires an e
 
 - Web Playback SDK requires Spotify Premium.
 - Mobile browser playback depends on Spotify Connect, browser media support, and user interaction.
+- Spotify-generated experiences such as Mixes, Radio, Blend, and some personalized links may open in Spotify but return 404 through the Web API. Use a regular public or private playlist from your library.
 - Some tracks may be unavailable by market or account and are skipped during playlist import.
 - The app shell can load offline, but gameplay requires internet and Spotify.
 
