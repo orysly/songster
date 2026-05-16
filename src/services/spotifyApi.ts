@@ -111,29 +111,12 @@ export async function listUserPlaylists(accessToken: string): Promise<UserPlayli
 
 export async function loadDynamicSearch(
   query: string,
-  accessToken: string,
-  maxOffset: number = 900 // Spotify limit is 1000, keep safe margin
+  accessToken: string
 ): Promise<PlaylistImportResult | null> {
   try {
-    // 1. Probe the query to get the total number of hits
-    const probe = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-      `/search?type=track&q=${encodeURIComponent(query)}&limit=1`,
-      accessToken
-    );
-
-    const total = probe?.tracks?.total || 0;
-    if (total === 0) {
-      console.warn("No results for query:", query);
-      return null;
-    }
-
-    // 2. Pick a safe random offset (avoiding offset > total)
-    const safeMaxOffset = Math.min(total > 50 ? total - 50 : 0, maxOffset);
-    const offset = Math.floor(Math.random() * (safeMaxOffset + 1));
-    
-    // 3. Fetch the actual block of random tracks
+    // Fetch the 50 most popular tracks for the query (offset=0)
     const data = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-      `/search?type=track&q=${encodeURIComponent(query)}&limit=50&offset=${offset}`,
+      `/search?type=track&q=${encodeURIComponent(query)}&limit=50`,
       accessToken
     );
 
