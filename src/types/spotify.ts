@@ -53,6 +53,13 @@ export type SpotifyPlaylistResponse = {
   };
 };
 
+export type SpotifyPlaylistSummary = {
+  id: string;
+  name: string;
+  tracks: { total: number };
+  owner?: { display_name?: string };
+};
+
 export type SpotifyPageResponse<T> = {
   items: T[];
   next: string | null;
@@ -64,6 +71,13 @@ export type PlaylistImportResult = {
   name: string;
   tracks: Track[];
   skippedCount: number;
+};
+
+export type UserPlaylistOption = {
+  id: string;
+  name: string;
+  trackCount: number;
+  ownerName?: string;
 };
 
 export type PlaybackErrorKind =

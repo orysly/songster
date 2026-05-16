@@ -43,6 +43,26 @@ export default function App() {
     );
   }
 
+  async function handleLoadPlaylistById(playlistId: string) {
+    const token = spotify.accessToken ?? (await spotify.refreshToken());
+    const result = await playlist.loadPlaylistById(playlistId, token);
+    if (!result) return;
+    game.actions.loadTracks(
+      {
+        id: result.id,
+        name: result.name,
+        usableCount: result.tracks.length,
+        skippedCount: result.skippedCount
+      },
+      result.tracks
+    );
+  }
+
+  async function handleLoadUserPlaylists() {
+    const token = spotify.accessToken ?? (await spotify.refreshToken());
+    await playlist.loadUserPlaylists(token);
+  }
+
   async function playSnippet() {
     const track = game.state.turn.currentTrack;
     if (!track) return;
@@ -122,6 +142,8 @@ export default function App() {
             spotifyError={spotify.error}
             playlistError={playlist.error}
             playlistLoading={playlist.loading}
+            userPlaylistsLoading={playlist.loadingUserPlaylists}
+            userPlaylists={playlist.userPlaylists}
             playlist={game.state.playlist}
             players={game.state.players}
             settings={game.state.settings}
@@ -129,6 +151,8 @@ export default function App() {
             onConnectSpotify={spotify.connect}
             onDisconnectSpotify={spotify.disconnect}
             onLoadPlaylist={handleLoadPlaylist}
+            onLoadPlaylistById={handleLoadPlaylistById}
+            onLoadUserPlaylists={handleLoadUserPlaylists}
             onLoadDeveloperTracks={game.actions.loadDeveloperTracks}
             onAddPlayer={game.actions.addPlayer}
             onEditPlayer={game.actions.editPlayer}

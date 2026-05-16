@@ -1,5 +1,5 @@
 import type { GameSettings, Player, PlaylistMeta, Track } from "../types/game";
-import type { SpotifyAuthStatus } from "../types/spotify";
+import type { SpotifyAuthStatus, UserPlaylistOption } from "../types/spotify";
 import { Button } from "../components/shared/Button";
 import { ErrorBanner } from "../components/shared/ErrorBanner";
 import { GameSettingsPanel } from "../components/setup/GameSettingsPanel";
@@ -17,6 +17,8 @@ type Props = {
   spotifyError: string | null;
   playlistError: string | null;
   playlistLoading: boolean;
+  userPlaylistsLoading: boolean;
+  userPlaylists: UserPlaylistOption[];
   playlist: PlaylistMeta | null;
   players: Player[];
   settings: GameSettings;
@@ -24,6 +26,8 @@ type Props = {
   onConnectSpotify: () => void;
   onDisconnectSpotify: () => void;
   onLoadPlaylist: (input: string) => Promise<void>;
+  onLoadPlaylistById: (playlistId: string) => Promise<void>;
+  onLoadUserPlaylists: () => Promise<void>;
   onLoadDeveloperTracks: () => void;
   onAddPlayer: (name: string) => void;
   onEditPlayer: (id: string, name: string) => void;
@@ -38,6 +42,8 @@ export function SetupScreen({
   spotifyError,
   playlistError,
   playlistLoading,
+  userPlaylistsLoading,
+  userPlaylists,
   playlist,
   players,
   settings,
@@ -45,6 +51,8 @@ export function SetupScreen({
   onConnectSpotify,
   onDisconnectSpotify,
   onLoadPlaylist,
+  onLoadPlaylistById,
+  onLoadUserPlaylists,
   onLoadDeveloperTracks,
   onAddPlayer,
   onEditPlayer,
@@ -74,9 +82,13 @@ export function SetupScreen({
       />
       <PlaylistInput
         loading={playlistLoading}
+        loadingUserPlaylists={userPlaylistsLoading}
         disabled={spotifyStatus !== "connected"}
+        userPlaylists={userPlaylists}
         showDeveloperFallback={!spotifyConfigured}
         onLoad={onLoadPlaylist}
+        onLoadById={onLoadPlaylistById}
+        onLoadUserPlaylists={onLoadUserPlaylists}
         onDeveloperLoad={onLoadDeveloperTracks}
       />
       <PlaylistSummary playlist={playlist} />

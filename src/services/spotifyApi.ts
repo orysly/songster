@@ -1,4 +1,11 @@
-import type { PlaylistImportResult, SpotifyPageResponse, SpotifyPlaylistResponse, SpotifyPlaylistTrackItem } from "../types/spotify";
+import type {
+  PlaylistImportResult,
+  SpotifyPageResponse,
+  SpotifyPlaylistResponse,
+  SpotifyPlaylistSummary,
+  SpotifyPlaylistTrackItem,
+  UserPlaylistOption
+} from "../types/spotify";
 import { dedupeTracks, normalizeSpotifyTrack } from "../utils/spotifyTrack";
 
 const API_BASE = "https://api.spotify.com/v1";
@@ -62,6 +69,26 @@ export async function importPlaylist(playlistId: string, accessToken: string): P
     tracks,
     skippedCount: items.length - tracks.length
   };
+}
+
+export async function listUserPlaylists(accessToken: string): Promise<UserPlaylistOption[]> {
+  const items: SpotifyPlaylistSummary[] = [];
+  let next: string | null =
+    `${API_BASE}/me/playlists?limit=50&fields=items(id,name,tracks(total),owner(display_name)),next,total`;
+
+  while (next) {
+    const pageUrl = next;
+    const page: SpotifyPageResponse<SpotifyPlaylistSummary> = await spotifyFetch(pageUrl, accessToken);
+    items.push(...page.items);
+    next = page.next;
+  }
+
+  return items.map((playlist) => ({
+    id: playlist.id,
+    name: playlist.name,
+    trackCount: playlist.tracks.total,
+    ownerName: playlist.owner?.display_name
+  }));
 }
 
 export async function transferPlayback(accessToken: string, deviceId: string): Promise<void> {
