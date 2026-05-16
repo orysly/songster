@@ -11,6 +11,7 @@ import { SpotifyConnectButton } from "../components/setup/SpotifyConnectButton";
 import { BuiltInCollections } from "../components/setup/BuiltInCollections";
 import { Logo } from "../components/shared/Logo";
 import { BRAND } from "../config/brand";
+import type { Era, Genre } from "../data/builtinPlaylists";
 
 type Props = {
   spotifyStatus: SpotifyAuthStatus;
