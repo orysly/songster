@@ -81,7 +81,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-ink text-white">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(247,201,72,0.16),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(46,196,182,0.16),transparent_30%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_28%)]" />
       <div className="relative">
         <div className="mx-auto w-full max-w-4xl px-4 pt-3">
           {offline ? <ErrorBanner message="You are offline. The app shell can open, but Spotify gameplay needs internet." /> : null}

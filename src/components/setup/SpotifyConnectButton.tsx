@@ -13,7 +13,7 @@ export function SpotifyConnectButton({ status, configured, onConnect, onDisconne
   return (
     <div className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
       <div className="mb-3 flex items-center gap-3 text-white">
-        <div className="rounded-xl bg-mint/20 p-3 text-mint">
+        <div className="rounded-xl bg-white/10 p-3 text-white/70">
           <Music className="h-5 w-5" />
         </div>
         <div>

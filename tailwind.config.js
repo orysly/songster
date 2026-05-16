@@ -4,15 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#101820",
-        "ink-soft": "#1b2b34",
-        lemon: "#f7c948",
-        coral: "#ff6b6b",
-        mint: "#2ec4b6",
-        paper: "#fff7e8"
+        ink: "#09090b",
+        "ink-soft": "#18181b",
+        lemon: "#f4f4f5",
+        coral: "#a1a1aa",
+        mint: "#d4d4d8",
+        paper: "#fafafa"
       },
       boxShadow: {
-        glow: "0 18px 50px rgba(0,0,0,0.22)"
+        glow: "0 18px 50px rgba(0,0,0,0.28)"
       }
     }
   },

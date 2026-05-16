@@ -8,6 +8,7 @@ import { PlaylistInput } from "../components/setup/PlaylistInput";
 import { PlaylistSummary } from "../components/setup/PlaylistSummary";
 import { PlayerSetup } from "../components/setup/PlayerSetup";
 import { SpotifyConnectButton } from "../components/setup/SpotifyConnectButton";
+import { Logo } from "../components/shared/Logo";
 import { BRAND } from "../config/brand";
 
 type Props = {
@@ -57,8 +58,8 @@ export function SetupScreen({
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top">
       <section className="pt-6 text-white">
-        <p className="text-sm font-black uppercase tracking-[0.28em] text-mint">Private party game</p>
-        <h1 className="mt-3 text-5xl font-black leading-none">{BRAND.productName}</h1>
+        <Logo />
+        <h1 className="mt-5 text-5xl font-black leading-none">{BRAND.productName}</h1>
         <p className="mt-4 text-lg leading-7 text-white/72">
           Connect Spotify, load a playlist, and place mystery songs into each player&apos;s release-year timeline.
         </p>

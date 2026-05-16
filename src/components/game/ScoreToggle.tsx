@@ -14,7 +14,7 @@ export function ScoreToggle({ label, checked, disabled, onChange }: Props) {
     >
       <span className="font-bold">{label}</span>
       <input
-        className="h-6 w-6 accent-lemon"
+        className="h-6 w-6 accent-white"
         type="checkbox"
         disabled={disabled}
         checked={checked}

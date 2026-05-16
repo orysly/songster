@@ -21,7 +21,7 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top text-white">
       <header className="pt-4">
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-mint">Reveal</p>
+        <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Reveal</p>
         <h1 className="mt-2 text-4xl font-black leading-none">{placementCorrect ? "Nice placement" : "Not this time"}</h1>
       </header>
       <section className="rounded-3xl bg-white/10 p-4 ring-1 ring-white/15">
@@ -34,7 +34,7 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="mb-2 inline-flex rounded-xl bg-paper px-3 py-1 text-lg font-black text-ink">
+            <div className="mb-2 inline-flex rounded-xl bg-white px-3 py-1 text-lg font-black text-ink">
               {track.releaseYear}
             </div>
             <h2 className="text-2xl font-black leading-tight">{track.title}</h2>
@@ -52,7 +52,7 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
         </a>
       </section>
       <section className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
-        <p className={`text-xl font-black ${placementCorrect ? "text-mint" : "text-coral"}`}>
+        <p className={`text-xl font-black ${placementCorrect ? "text-white" : "text-white/55"}`}>
           Timeline placement: {placementCorrect ? "+5" : "0"}
         </p>
         {!placementCorrect ? (
@@ -95,7 +95,7 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
             </div>
           </>
         )}
-        <p className="mt-4 text-center text-4xl font-black text-lemon">+{state.turn.pointsAwarded}</p>
+        <p className="mt-4 text-center text-4xl font-black text-white">+{state.turn.pointsAwarded}</p>
       </section>
       <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
         {state.turn.hasAppliedPoints ? (

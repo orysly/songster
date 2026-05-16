@@ -36,7 +36,7 @@ export function GameScreen({
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top text-white">
       <header className="pt-4">
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-mint">Round {state.turn.roundNumber}</p>
+        <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">Round {state.turn.roundNumber}</p>
         <h1 className="mt-2 text-4xl font-black leading-none">{currentPlayer.name}&apos;s turn</h1>
         <p className="mt-2 text-white/65">{currentPlayer.score} points</p>
       </header>

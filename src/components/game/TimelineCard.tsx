@@ -3,7 +3,7 @@ import type { Track } from "../../types/game";
 export function TimelineCard({ track, compact = false }: { track: Track; compact?: boolean }) {
   if (track.isYearMarker) {
     return (
-      <div className={`${compact ? "w-36" : "w-44"} shrink-0 rounded-2xl bg-lemon p-3 text-ink shadow-glow`}>
+      <div className={`${compact ? "w-36" : "w-44"} shrink-0 rounded-2xl bg-white p-3 text-ink shadow-glow`}>
         <div className="grid aspect-square w-full place-items-center rounded-xl bg-ink text-paper">
           <span className="text-4xl font-black">{track.releaseYear}</span>
         </div>

@@ -20,10 +20,10 @@ export function WinnerScreen({
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top text-white">
       <section className="pt-10 text-center">
-        <div className="mx-auto mb-4 grid h-24 w-24 place-items-center rounded-full bg-lemon text-ink shadow-glow">
+        <div className="mx-auto mb-4 grid h-24 w-24 place-items-center rounded-full bg-white text-ink shadow-glow">
           <Trophy className="h-12 w-12" />
         </div>
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-mint">
+        <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/55">
           {state.turn.deckRunOut ? "Playlist finished" : "Winner"}
         </p>
         <h1 className="mt-3 text-5xl font-black leading-none">

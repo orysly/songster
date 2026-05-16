@@ -1,6 +1,6 @@
-# Timeline Tracks
+# Songster
 
-Timeline Tracks is a private, local, one-device party game for Spotify Premium hosts. A host connects Spotify, loads a playlist, and players take turns placing hidden mystery tracks into their own release-year timelines.
+Songster is a private, local, one-device party game for Spotify Premium hosts. A host connects Spotify, loads a playlist, and players take turns placing hidden mystery tracks into their own release-year timelines.
 
 The app does not download, cache, modify, re-host, or expose Spotify audio. It uses Spotify playback control and keeps metadata hidden until each reveal.
 

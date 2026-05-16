@@ -32,7 +32,7 @@ export function PlayerSetup({ players, onAdd, onEdit, onRemove }: Props) {
       <h2 className="mb-3 text-xl font-black text-white">Players</h2>
       <div className="flex gap-2">
         <input
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-white/15 bg-ink/70 px-4 text-white outline-none placeholder:text-white/35 focus:border-lemon"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-white/15 bg-ink/70 px-4 text-white outline-none placeholder:text-white/35 focus:border-white"
           placeholder="Player name"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -49,7 +49,7 @@ export function PlayerSetup({ players, onAdd, onEdit, onRemove }: Props) {
           <div key={player.id} className="flex items-center gap-2 rounded-xl bg-ink/55 p-2 text-white">
             {editingId === player.id ? (
               <input
-                className="min-h-11 min-w-0 flex-1 rounded-lg bg-white/10 px-3 outline-none focus:ring-2 focus:ring-lemon"
+                className="min-h-11 min-w-0 flex-1 rounded-lg bg-white/10 px-3 outline-none focus:ring-2 focus:ring-white"
                 value={editingName}
                 onChange={(event) => setEditingName(event.target.value)}
                 onKeyDown={(event) => {
@@ -77,7 +77,7 @@ export function PlayerSetup({ players, onAdd, onEdit, onRemove }: Props) {
             )}
             <button
               aria-label={`Remove ${player.name}`}
-              className="rounded-lg p-3 text-coral hover:bg-coral/10"
+              className="rounded-lg p-3 text-white/55 hover:bg-white/10"
               onClick={() => onRemove(player.id)}
             >
               <Trash2 className="h-5 w-5" />

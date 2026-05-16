@@ -19,7 +19,7 @@ export function PlaylistInput({ loading, disabled, onLoad, onDeveloperLoad, show
       </label>
       <input
         id="playlist"
-        className="min-h-12 w-full rounded-xl border border-white/15 bg-ink/70 px-4 text-base text-white outline-none placeholder:text-white/35 focus:border-lemon"
+        className="min-h-12 w-full rounded-xl border border-white/15 bg-ink/70 px-4 text-base text-white outline-none placeholder:text-white/35 focus:border-white"
         placeholder="https://open.spotify.com/playlist/..."
         value={value}
         onChange={(event) => setValue(event.target.value)}

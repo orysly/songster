@@ -8,7 +8,7 @@ export function Scoreboard({ players, currentPlayerId }: { players: Player[]; cu
           key={player.id}
           className={`rounded-xl p-3 ring-1 ${
             player.id === currentPlayerId
-              ? "bg-lemon text-ink ring-lemon"
+              ? "bg-white text-ink ring-white"
               : "bg-white/10 text-white ring-white/15"
           }`}
         >

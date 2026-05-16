@@ -18,7 +18,7 @@ export function GameSettingsPanel({ settings, onChange }: Props) {
               <button
                 key={target}
                 className={`min-h-12 rounded-xl font-black ${
-                  settings.targetScore === target ? "bg-lemon text-ink" : "bg-white/10 text-white"
+                  settings.targetScore === target ? "bg-white text-ink" : "bg-white/10 text-white"
                 }`}
                 onClick={() => onChange({ targetScore: target })}
               >
@@ -28,7 +28,7 @@ export function GameSettingsPanel({ settings, onChange }: Props) {
           </div>
           <input
             aria-label="Custom target score"
-            className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-ink/70 px-4 outline-none focus:border-lemon"
+            className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-ink/70 px-4 outline-none focus:border-white"
             type="number"
             min={25}
             step={5}
@@ -43,7 +43,7 @@ export function GameSettingsPanel({ settings, onChange }: Props) {
               <button
                 key={seconds}
                 className={`min-h-12 rounded-xl font-black ${
-                  settings.snippetSeconds === seconds ? "bg-mint text-ink" : "bg-white/10 text-white"
+                  settings.snippetSeconds === seconds ? "bg-white text-ink" : "bg-white/10 text-white"
                 }`}
                 onClick={() => onChange({ snippetSeconds: seconds as 15 | 30 | 45 })}
               >
@@ -55,7 +55,7 @@ export function GameSettingsPanel({ settings, onChange }: Props) {
         <label className="flex min-h-14 items-center justify-between rounded-xl bg-white/10 px-4">
           <span className="font-bold">Allow replay</span>
           <input
-            className="h-6 w-6 accent-lemon"
+            className="h-6 w-6 accent-white"
             type="checkbox"
             checked={settings.allowReplay}
             onChange={(event) => onChange({ allowReplay: event.target.checked })}

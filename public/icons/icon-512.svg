@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Timeline Tracks app icon">
-  <rect width="512" height="512" rx="112" fill="#101820"/>
-  <circle cx="150" cy="148" r="48" fill="#f7c948"/>
-  <circle cx="362" cy="364" r="48" fill="#2ec4b6"/>
-  <path d="M150 148h132c48 0 84 36 84 84v132" fill="none" stroke="#fff7e8" stroke-width="38" stroke-linecap="round"/>
-  <path d="M188 326c44-28 94-28 138 0" fill="none" stroke="#ff6b6b" stroke-width="34" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Songster app icon">
+  <rect width="512" height="512" rx="112" fill="#09090b"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#fafafa" stroke-width="34"/>
+  <circle cx="256" cy="256" r="38" fill="#fafafa"/>
+  <path d="M170 202c50-38 122-38 172 0M170 310c50 38 122 38 172 0" fill="none" stroke="#a1a1aa" stroke-width="28" stroke-linecap="round"/>
+  <path d="M376 132v168" fill="none" stroke="#fafafa" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="344" cy="344" r="38" fill="#fafafa"/>
 </svg>

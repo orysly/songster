@@ -14,10 +14,10 @@ export function MysteryTrackCard({ track, allowReplay, hasPlayedSnippet, isPlayi
   const replayBlocked = hasPlayedSnippet && !allowReplay;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-lemon via-coral to-mint p-1 shadow-glow">
+    <div className="relative overflow-hidden rounded-3xl bg-white/12 p-px shadow-glow">
       <div className="rounded-[1.35rem] bg-ink p-6 text-center text-white">
         <div className="mx-auto mb-4 grid h-24 w-24 place-items-center rounded-full border-4 border-white/15 bg-white/10">
-          <Disc3 className="h-12 w-12 animate-spin text-lemon [animation-duration:7s]" />
+          <Disc3 className="h-12 w-12 animate-spin text-white [animation-duration:7s]" />
         </div>
         <h2 className="text-3xl font-black">Guess the song</h2>
         <Button
