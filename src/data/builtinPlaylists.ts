@@ -1,8 +1,10 @@
 export type Era = "1960s" | "1970s" | "1980s" | "1990s" | "2000s" | "2010s";
-export type Genre = "Pop" | "Rock" | "Hip Hop" | "Jazz" | "Hungarian";
+export type Genre = "Pop" | "Rock" | "Hip Hop" | "Jazz" | "Hungarian" | "R&B" | "Disco" | "Electronic" | "Indie" | "Country" | "Metal";
 
 export const ALL_ERAS: Era[] = ["1960s", "1970s", "1980s", "1990s", "2000s", "2010s"];
-export const ALL_GENRES: Genre[] = ["Pop", "Rock", "Hip Hop", "Jazz", "Hungarian"];
+export const ALL_GENRES: Genre[] = [
+  "Pop", "Rock", "Hip Hop", "R&B", "Disco", "Electronic", "Indie", "Country", "Metal", "Jazz", "Hungarian"
+];
 
 const ERA_YEAR_RANGES: Record<Era, string> = {
   "1960s": "1960-1969",
@@ -17,6 +19,12 @@ const GENRE_MAPPING: Record<Genre, string[]> = {
   "Pop": ["genre:pop", "genre:dance pop"],
   "Rock": ["genre:rock", "genre:classic rock"],
   "Hip Hop": ["genre:hip hop", "genre:rap"],
+  "R&B": ["genre:r&b", "genre:contemporary r&b"],
+  "Disco": ["genre:disco"],
+  "Electronic": ["genre:electronic", "genre:edm", "genre:house"],
+  "Indie": ["genre:indie pop", "genre:indie rock"],
+  "Country": ["genre:country", "genre:contemporary country"],
+  "Metal": ["genre:metal", "genre:hard rock"],
   "Jazz": ["genre:jazz", "genre:vocal jazz"],
   // For Hungarian, we use a broad OR query to capture pop, rock, and alternative hits
   "Hungarian": ["genre:hungarian OR genre:hungarian pop OR genre:hungarian rock OR genre:classic hungarian pop"]
