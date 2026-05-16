@@ -221,7 +221,7 @@ export default function App() {
             onDisconnectSpotify={spotify.disconnect}
             onLoadPlaylist={handleLoadPlaylist}
             onLoadPlaylistById={handleLoadPlaylistById}
-            onLoadBuiltInPlaylists={handleLoadBuiltInPlaylists}
+            onLoadBuiltInSearch={handleLoadBuiltInSearch}
             onLoadUserPlaylists={handleLoadUserPlaylists}
             onLoadDeveloperTracks={game.actions.loadDeveloperTracks}
             onRemovePlaylist={game.actions.removePlaylist}
