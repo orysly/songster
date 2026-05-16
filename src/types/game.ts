@@ -10,6 +10,8 @@ export type Track = {
   spotifyUrl: string;
   artworkUrl?: string;
   previewUrl?: string | null;
+  isrc?: string;
+  isOriginalDateResolved?: boolean;
   isYearMarker?: boolean;
 };
 

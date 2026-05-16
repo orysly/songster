@@ -59,7 +59,9 @@ export function normalizeSpotifyTrack(item: SpotifyPlaylistTrackItem): Track | n
     spotifyUri: source.uri,
     spotifyUrl: source.external_urls?.spotify ?? `https://open.spotify.com/track/${source.id}`,
     artworkUrl,
-    previewUrl: source.preview_url ?? null
+    previewUrl: source.preview_url ?? null,
+    isrc: source.external_ids?.isrc,
+    isOriginalDateResolved: false
   };
 }
 

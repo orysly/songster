@@ -7,7 +7,7 @@ import type {
   SpotifyPlaylistTrackItem,
   UserPlaylistOption
 } from "../types/spotify";
-import { dedupeTracks, normalizeSpotifyTrack } from "../utils/spotifyTrack";
+import { dedupeTracks, normalizeSpotifyTrack, getReleaseYear } from "../utils/spotifyTrack";
 
 const API_BASE = "https://api.spotify.com/v1";
 
@@ -60,7 +60,7 @@ export async function importPlaylist(playlistId: string, accessToken: string): P
   );
 
   const firstPage = await spotifyFetch<SpotifyPageResponse<SpotifyPlaylistTrackItem>>(
-    `/playlists/${playlistId}/items?limit=100&fields=items(item(id,name,type,is_local,is_playable,uri,duration_ms,preview_url,external_urls,artists(name),album(name,release_date,images))),next,total`,
+    `/playlists/${playlistId}/items?limit=100&fields=items(item(id,name,type,is_local,is_playable,uri,duration_ms,preview_url,external_urls,external_ids,artists(name),album(name,release_date,images))),next,total`,
     accessToken
   );
 
@@ -130,3 +130,40 @@ export async function startPlayback(
 export async function pausePlayback(accessToken: string): Promise<void> {
   await spotifyFetch<void>("/me/player/pause", accessToken, { method: "PUT" });
 }
+
+export async function fetchOriginalReleaseDate(isrc: string, accessToken: string): Promise<{ releaseDate: string; releaseYear: number } | null> {
+  try {
+    const data = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
+      `/search?type=track&q=isrc:${isrc}&limit=50`,
+      accessToken
+    );
+
+    if (!data || !data.tracks || !data.tracks.items || data.tracks.items.length === 0) {
+      return null;
+    }
+
+    let oldestDateStr: string | null = null;
+    let oldestYear: number = 9999;
+
+    for (const item of data.tracks.items) {
+      const releaseDate = item.album?.release_date;
+      if (!releaseDate) continue;
+
+      const year = getReleaseYear(releaseDate);
+      if (year && year < oldestYear) {
+        oldestYear = year;
+        oldestDateStr = releaseDate;
+      }
+    }
+
+    if (oldestDateStr && oldestYear !== 9999) {
+      return { releaseDate: oldestDateStr, releaseYear: oldestYear };
+    }
+
+    return null;
+  } catch (err) {
+    console.error("Failed to fetch original release date for ISRC:", isrc, err);
+    return null;
+  }
+}
+

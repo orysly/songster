@@ -31,6 +31,7 @@ export type SpotifyTrackObject = {
   duration_ms?: number;
   preview_url?: string | null;
   external_urls?: { spotify?: string };
+  external_ids?: { isrc?: string };
   artists?: Array<{ name: string }>;
   album?: {
     name?: string;

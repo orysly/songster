@@ -4,6 +4,7 @@ import { useGameState } from "./hooks/useGameState";
 import { useSpotifyAuth } from "./hooks/useSpotifyAuth";
 import { useSpotifyPlayer } from "./hooks/useSpotifyPlayer";
 import { useSpotifyPlaylist } from "./hooks/useSpotifyPlaylist";
+import { fetchOriginalReleaseDate } from "./services/spotifyApi";
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
 import { SetupScreen } from "./screens/SetupScreen";
@@ -102,6 +103,29 @@ export default function App() {
   useEffect(() => {
     if (game.state.phase === "winner") void player.pause();
   }, [game.state.phase]);
+
+  useEffect(() => {
+    const track = game.state.turn.currentTrack;
+    if (game.state.phase === "playing" && track && track.isrc && !track.isOriginalDateResolved) {
+      let active = true;
+      const resolveDate = async () => {
+        try {
+          const token = spotify.accessToken ?? (await spotify.refreshToken());
+          if (!token) return;
+          const result = await fetchOriginalReleaseDate(track.isrc!, token);
+          if (active && result) {
+            game.actions.updateTrackReleaseDate(track.id, result.releaseDate, result.releaseYear);
+          }
+        } catch (e) {
+          console.error("Failed to resolve original date", e);
+        }
+      };
+      resolveDate();
+      return () => {
+        active = false;
+      };
+    }
+  }, [game.state.phase, game.state.turn.currentTrack?.id, spotify]);
 
   const currentPlayer = game.currentPlayer;
 

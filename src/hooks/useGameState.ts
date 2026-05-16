@@ -400,6 +400,39 @@ export function useGameState() {
     }));
   }
 
+  function updateTrackReleaseDate(trackId: string, releaseDate: string, releaseYear: number) {
+    setState((current) => {
+      // Update in deck
+      const newDeck = current.deck.map(t => 
+        t.id === trackId ? { ...t, releaseDate, releaseYear, isOriginalDateResolved: true } : t
+      );
+      // Update in originalDeck
+      const newOriginalDeck = current.originalDeck.map(t => 
+        t.id === trackId ? { ...t, releaseDate, releaseYear, isOriginalDateResolved: true } : t
+      );
+      // Update if it's the current track
+      let newTurn = current.turn;
+      if (current.turn.currentTrack?.id === trackId) {
+        newTurn = {
+          ...current.turn,
+          currentTrack: {
+            ...current.turn.currentTrack,
+            releaseDate,
+            releaseYear,
+            isOriginalDateResolved: true
+          }
+        };
+      }
+
+      return {
+        ...current,
+        deck: newDeck,
+        originalDeck: newOriginalDeck,
+        turn: newTurn
+      };
+    });
+  }
+
   return {
     state,
     currentPlayer,
@@ -425,7 +458,8 @@ export function useGameState() {
       newGame,
       changePlaylist,
       abortGame,
-      removePlaylist
+      removePlaylist,
+      updateTrackReleaseDate
     }
   };
 }
