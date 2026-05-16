@@ -10,10 +10,10 @@ export type BuiltInPlaylist = {
 
 export const builtinPlaylists: BuiltInPlaylist[] = [
   {
-    id: "37i9dQZF1DXaKIA8E7Wako",
-    name: "All Out 60s",
+    id: "37i9dQZF1DWWzBc3TOlaAV",
+    name: "60s Rock Anthems",
     eras: ["1960s"],
-    genres: ["Pop", "Rock"]
+    genres: ["Rock"]
   },
   {
     id: "37i9dQZF1DWTJ7xPn4vNaz",
@@ -22,7 +22,7 @@ export const builtinPlaylists: BuiltInPlaylist[] = [
     genres: ["Pop", "Rock"]
   },
   {
-    id: "37i9dQZF1DX4UtSsVN1yRI",
+    id: "37i9dQZF1DX4UtSsGT1Sbe",
     name: "All Out 80s",
     eras: ["1980s"],
     genres: ["Pop", "Rock"]
@@ -52,7 +52,7 @@ export const builtinPlaylists: BuiltInPlaylist[] = [
     genres: ["Rock"]
   },
   {
-    id: "37i9dQZF1DXbITWG1ZIGZm",
+    id: "37i9dQZF1DXbITWG1ZJKYt",
     name: "Jazz Classics",
     eras: ["1960s", "1970s"],
     genres: ["Jazz"]
@@ -64,15 +64,9 @@ export const builtinPlaylists: BuiltInPlaylist[] = [
     genres: ["Hip Hop"]
   },
   {
-    id: "0B2mGfB87h6n3D5kQnE4s5", // Retro Magyar (community playlist)
-    name: "Magyar Retro",
-    eras: ["1970s", "1980s", "1990s", "2000s"],
-    genres: ["Hungarian", "Pop", "Rock"]
-  },
-  {
     id: "37i9dQZF1DWZq91oLsHZvy", // Official Top Magyar
     name: "Magyar Slágerek",
-    eras: ["2000s", "2010s"],
+    eras: ["1970s", "1980s", "1990s", "2000s", "2010s"],
     genres: ["Hungarian", "Pop"]
   }
 ];
