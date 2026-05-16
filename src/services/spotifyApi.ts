@@ -5,7 +5,8 @@ import type {
   SpotifyPlaylistResponse,
   SpotifyPlaylistSummary,
   SpotifyPlaylistTrackItem,
-  UserPlaylistOption
+  UserPlaylistOption,
+  SpotifyTrackObject
 } from "../types/spotify";
 import { dedupeTracks, normalizeSpotifyTrack, getReleaseYear } from "../utils/spotifyTrack";
 
