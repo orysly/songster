@@ -123,16 +123,11 @@ export default function App() {
             // Check iTunes first
             result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
           } catch (e) {
-            console.warn(`iTunes search failed for ${track.title} (likely rate limit), falling back to Spotify ISRC.`);
+            console.warn(`iTunes search failed for ${track.title} (likely rate limit).`);
           }
 
           try {
-            // Fallback to Spotify original release date lookup if iTunes failed or returned nothing
-            if (!result && track.isrc) {
-              result = await fetchOriginalReleaseDate(track.isrc, token);
-            }
-            
-            // If we found a verified true original release date from either source
+            // STRICT ITUNES ONLY: If we found a verified true original release date from iTunes
             if (result) {
               const year = result.releaseYear;
               // STRICT ERA CHECK: Only allow if it belongs in the selected decades
@@ -141,19 +136,10 @@ export default function App() {
               }
               return null; // Silent discard: fell outside selected eras
             }
-            
-            // If neither API finds it, assume Spotify's default date is correct but still verify era!
-            if (isYearInEras(track.releaseYear, eras)) {
-              return item;
-            }
-            return null; // Silent discard
+            return null; // Silent discard: iTunes did not find it
           } catch (e) {
             console.error("Verification failed for", track.title, e);
-            // If even Spotify API fails, fallback to strict era check on original data
-            if (isYearInEras(track.releaseYear, eras)) {
-              return item;
-            }
-            return null;
+            return null; // Silent discard: ONLY allow iTunes verified tracks
           }
         })
       );

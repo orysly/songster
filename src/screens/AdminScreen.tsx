@@ -67,18 +67,14 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
             } catch (e) {}
 
             try {
-              if (!result && track.isrc) {
-                result = await fetchOriginalReleaseDate(track.isrc, token);
-              }
-              
               if (result) {
                 const year = result.releaseYear;
                 if (isYearInEras(year, [era])) {
-                  // STRICT: Only push if it was explicitly verified by iTunes or ISRC
+                  // STRICT: Only push if it was explicitly verified by iTunes
                   validTracksWithMeta.push({ ...item, track: { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true } });
                 }
               }
-              // If no result is found from iTunes or ISRC, SILENTLY DISCARD.
+              // If no result is found from iTunes, SILENTLY DISCARD.
               // We NEVER accept the default Spotify releaseYear for the database!
             } catch (e) {
               // SILENTLY DISCARD ON ERROR. We only want 100% verified tracks.
