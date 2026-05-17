@@ -215,9 +215,9 @@ export default function App() {
     if (played) game.actions.markSnippetPlayed();
   }
 
-  async function lockPlacement() {
+  async function lockPlacement(isDoubleOrNothing?: boolean) {
     await player.pause();
-    game.actions.lockPlacement();
+    game.actions.lockPlacement(isDoubleOrNothing);
   }
 
   async function skipTrack() {

@@ -78,7 +78,8 @@ function resetPlayersWithStarterYears(players: Player[], deck: Track[]): Player[
   return players.map((player) => ({
     ...player,
     score: 0,
-    timeline: [createYearMarker(randomStarterYear(deck))]
+    timeline: [createYearMarker(randomStarterYear(deck))],
+    hasUsedDoubleOrNothing: false
   }));
 }
 
