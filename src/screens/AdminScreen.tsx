@@ -70,20 +70,18 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
               if (!result && track.isrc) {
                 result = await fetchOriginalReleaseDate(track.isrc, token);
               }
+              
               if (result) {
                 const year = result.releaseYear;
                 if (isYearInEras(year, [era])) {
+                  // STRICT: Only push if it was explicitly verified by iTunes or ISRC
                   validTracksWithMeta.push({ ...item, track: { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true } });
                 }
-              } else {
-                if (isYearInEras(track.releaseYear, [era])) {
-                  validTracksWithMeta.push(item);
-                }
               }
+              // If no result is found from iTunes or ISRC, SILENTLY DISCARD.
+              // We NEVER accept the default Spotify releaseYear for the database!
             } catch (e) {
-              if (isYearInEras(track.releaseYear, [era])) {
-                validTracksWithMeta.push(item);
-              }
+              // SILENTLY DISCARD ON ERROR. We only want 100% verified tracks.
             }
             
             // Wait 1.5 seconds between EVERY SINGLE TRACK. 
