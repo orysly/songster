@@ -64,28 +64,36 @@ export function GameScreen({
         hasPlayedSnippet={state.turn.hasPlayedSnippet}
         isPlaying={isPlaying}
         onPlay={onPlay}
+        onSkipTrack={onSkipTrack}
       />
       <Timeline
         timeline={currentPlayer.timeline}
         selectedInsertionIndex={selected}
         onSelectInsertion={onSelectInsertion}
       />
-      <div className="sticky bottom-0 -mx-4 grid gap-3 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
-        {!currentPlayer.hasUsedDoubleOrNothing && (
+      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
+        <div className={`grid ${!currentPlayer.hasUsedDoubleOrNothing ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
+          {!currentPlayer.hasUsedDoubleOrNothing && (
+            <button
+              type="button"
+              disabled={!canLock}
+              className={`w-full min-h-12 inline-flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-black tracking-wider uppercase border transition-all ${
+                !canLock
+                  ? "bg-brand-500/10 text-white/30 border-white/5 cursor-not-allowed opacity-55"
+                  : "bg-brand-500 text-white hover:bg-brand-400 border-white/20 shadow-lg shadow-brand-500/40 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] animate-pulse"
+              }`}
+              onClick={() => onLockPlacement(true)}
+            >
+              <Flame className="h-4.5 w-4.5 text-white" />
+              <span>Double or Nothing!</span>
+            </button>
+          )}
           <Button
             disabled={!canLock}
-            className={`w-full min-h-14 justify-center bg-brand-500 font-black tracking-widest uppercase hover:bg-brand-400 shadow-lg shadow-brand-500/20 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] border border-white/20 text-white transition-opacity ${!canLock ? "opacity-50" : "animate-pulse"}`}
-            onClick={() => onLockPlacement(true)}
-            icon={<Flame className="h-5 w-5" />}
+            className="w-full min-h-12"
+            icon={<Check className="h-5 w-5" />}
+            onClick={() => onLockPlacement(false)}
           >
-            Double or Nothing!
-          </Button>
-        )}
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="ghost" icon={<SkipForward className="h-5 w-5" />} onClick={onSkipTrack}>
-            Skip (-5 pts)
-          </Button>
-          <Button disabled={!canLock} icon={<Check className="h-5 w-5" />} onClick={() => onLockPlacement(false)}>
             Lock placement
           </Button>
         </div>

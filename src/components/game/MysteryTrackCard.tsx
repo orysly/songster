@@ -1,4 +1,4 @@
-import { Disc3, Play, RotateCcw } from "lucide-react";
+import { Disc3, Play, RotateCcw, SkipForward } from "lucide-react";
 import type { Track } from "../../types/game";
 import { Button } from "../shared/Button";
 
@@ -8,14 +8,25 @@ type Props = {
   hasPlayedSnippet: boolean;
   isPlaying: boolean;
   onPlay: () => void;
+  onSkipTrack?: () => void;
 };
 
-export function MysteryTrackCard({ track, allowReplay, hasPlayedSnippet, isPlaying, onPlay }: Props) {
+export function MysteryTrackCard({ track, allowReplay, hasPlayedSnippet, isPlaying, onPlay, onSkipTrack }: Props) {
   const replayBlocked = hasPlayedSnippet && !allowReplay;
 
   return (
     <div className="relative overflow-hidden rounded-3xl bg-white/12 p-px shadow-glow">
-      <div className="rounded-[1.35rem] bg-ink p-6 text-center text-white">
+      <div className="rounded-[1.35rem] bg-ink p-6 text-center text-white relative">
+        {onSkipTrack && (
+          <button
+            type="button"
+            onClick={onSkipTrack}
+            className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-black uppercase tracking-wider text-white/45 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+          >
+            <span>Skip (-5 pts)</span>
+            <SkipForward className="h-3.5 w-3.5" />
+          </button>
+        )}
         <div className="mx-auto mb-4 grid h-24 w-24 place-items-center rounded-full border-4 border-white/15 bg-white/10">
           <Disc3 className="h-12 w-12 animate-spin text-white [animation-duration:7s]" />
         </div>
