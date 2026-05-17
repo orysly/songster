@@ -70,9 +70,7 @@ export default function App() {
 
     const TARGET_COUNT = 50;
 
-    // STEP 1: Attempt to load from Supabase Cache instantly!
-    const cachedTracks = await fetchCachedTracks(eras, genres);
-    if (cachedTracks.length >= TARGET_COUNT) {
+    const startWithTracks = (tracks: Track[]) => {
       const displayEras = eras.length > 0 ? eras.join(", ") : "All Eras";
       const displayGenres = genres.length > 0 ? genres.join(", ") : "All Genres";
       
@@ -80,17 +78,36 @@ export default function App() {
         {
           id: `cached-${Date.now()}`,
           name: `${displayEras} ${displayGenres}`,
-          usableCount: cachedTracks.length,
+          usableCount: tracks.length,
           skippedCount: 0,
-          tracks: cachedTracks.slice(0, TARGET_COUNT)
+          tracks: tracks.slice(0, TARGET_COUNT)
         },
-        cachedTracks.slice(0, TARGET_COUNT)
+        tracks.slice(0, TARGET_COUNT)
       );
+    };
+
+    // STEP 1: Attempt to load from Supabase Cache instantly!
+    // An empty eras/genres array acts as "All Time" and selects from everything in the cache!
+    const cachedTracks = await fetchCachedTracks(eras, genres);
+    if (cachedTracks.length >= TARGET_COUNT) {
+      console.log(`Cache hit! Loaded ${cachedTracks.length} tracks from Supabase.`);
+      startWithTracks(cachedTracks);
       return; // INSTANT START!
     }
 
     // STEP 2: Fallback to manual generation
-    const searchQueries = generateSearchQueries(eras, genres);
+    let activeEras = eras;
+    let activeGenres = genres;
+    
+    // If it's an "All Time" request but the cache was empty, we can't scrape 66 combos.
+    // Pick 2 random eras and 2 random genres as a rapid fallback to start the game quickly.
+    if (eras.length === 0 && genres.length === 0) {
+      const { ALL_ERAS, ALL_GENRES } = await import("./data/builtinPlaylists");
+      activeEras = [...ALL_ERAS].sort(() => Math.random() - 0.5).slice(0, 2);
+      activeGenres = [...ALL_GENRES].sort(() => Math.random() - 0.5).slice(0, 2);
+    }
+
+    const searchQueries = generateSearchQueries(activeEras, activeGenres);
     
     // Execute all queries in parallel and attach the era/genre metadata to each track
     const resultsWithMeta = await Promise.all(

@@ -43,6 +43,17 @@ export function BuiltInCollections({ disabled, loading, onLoadSearch }: Props) {
       </p>
 
       <div className="mt-5 space-y-4">
+        {/* All Time Greatest Hits Quick Play Button */}
+        <div className="pb-2 border-b border-white/10">
+          <Button
+            onClick={() => onLoadSearch([], [])}
+            disabled={disabled}
+            className="w-full justify-center bg-brand-500 font-black tracking-widest uppercase hover:bg-brand-400 py-4 shadow-lg shadow-brand-500/20"
+          >
+            All Time Greatest Hits (Quick Play)
+          </Button>
+        </div>
+
         <div>
           <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-white/55">Decades</h3>
           <div className="flex flex-wrap gap-2">
