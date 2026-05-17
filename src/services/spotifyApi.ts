@@ -18,40 +18,57 @@ export async function spotifyFetch<T>(
   init: RequestInit = {}
 ): Promise<T> {
   const url = pathOrUrl.startsWith("http") ? pathOrUrl : `${API_BASE}${pathOrUrl}`;
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-      ...init.headers
-    }
-  });
-
-  if (response.status === 204) return undefined as T;
-  if (!response.ok) {
-    const text = await response.text();
-    if (response.status === 401) {
-      throw new Error("Spotify needs a fresh connection. Disconnect and connect Spotify again.");
-    }
-    if (response.status === 403) {
-      if (url.includes("/me/player")) {
-        throw new Error("Spotify blocked playback. The host account needs Spotify Premium, and playback must be started from a user tap.");
+  
+  let retries = 0;
+  while (retries < 5) {
+    const response = await fetch(url, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        ...init.headers
       }
-      if (url.includes("/me/playlists") || url.includes("/playlists/")) {
+    });
+
+    if (response.status === 429) {
+      const retryAfterStr = response.headers.get("Retry-After");
+      const retryAfterMs = retryAfterStr ? parseInt(retryAfterStr, 10) * 1000 : 5000;
+      console.warn(`Spotify 429 rate limit hit. Sleeping for ${retryAfterMs}ms before retrying...`);
+      await new Promise(r => setTimeout(r, retryAfterMs));
+      retries++;
+      continue;
+    }
+
+    if (response.status === 204) return undefined as T;
+    
+    if (!response.ok) {
+      const text = await response.text();
+      if (response.status === 401) {
+        throw new Error("Spotify needs a fresh connection. Disconnect and connect Spotify again.");
+      }
+      if (response.status === 403) {
+        if (url.includes("/me/player")) {
+          throw new Error("Spotify blocked playback. The host account needs Spotify Premium, and playback must be started from a user tap.");
+        }
+        if (url.includes("/me/playlists") || url.includes("/playlists/")) {
+          throw new Error(
+            "Spotify blocked playlist access. In Development Mode, Songster can import playlists you own or collaborate on. Copy the songs into one of your own playlists, then load that playlist."
+          );
+        }
+        throw new Error("Spotify blocked this request. Disconnect and connect again, then try once more.");
+      }
+      if (response.status === 404 && url.includes("/playlists/")) {
         throw new Error(
-          "Spotify blocked playlist access. In Development Mode, Songster can import playlists you own or collaborate on. Copy the songs into one of your own playlists, then load that playlist."
+          "Spotify could not find that playlist through the Web API. Try a regular public or private playlist from your library instead of a Spotify Mix, Radio, Blend, or other generated playlist."
         );
       }
-      throw new Error("Spotify blocked this request. Disconnect and connect again, then try once more.");
+      throw new Error(text || `Spotify request failed with ${response.status}`);
     }
-    if (response.status === 404 && url.includes("/playlists/")) {
-      throw new Error(
-        "Spotify could not find that playlist through the Web API. Try a regular public or private playlist from your library instead of a Spotify Mix, Radio, Blend, or other generated playlist."
-      );
-    }
-    throw new Error(text || `Spotify request failed with ${response.status}`);
+    
+    return (await response.json()) as T;
   }
-  return (await response.json()) as T;
+  
+  throw new Error("Spotify API Rate Limit Exceeded: Maximum retries reached.");
 }
 
 export async function importPlaylist(playlistId: string, accessToken: string): Promise<PlaylistImportResult> {
