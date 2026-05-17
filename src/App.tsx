@@ -90,15 +90,22 @@ export default function App() {
       const chunk = rawTracks.slice(i, i + CHUNK_SIZE);
       const verifiedChunk = await Promise.all(
         chunk.map(async (track) => {
+          let result = null;
+          
           try {
             // Check iTunes first
-            let result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
-            // Fallback to Spotify original release date lookup
+            result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
+          } catch (e) {
+            console.warn(`iTunes search failed for ${track.title} (likely rate limit), falling back to Spotify ISRC.`);
+          }
+
+          try {
+            // Fallback to Spotify original release date lookup if iTunes failed or returned nothing
             if (!result && track.isrc) {
               result = await fetchOriginalReleaseDate(track.isrc, token);
             }
             
-            // If we found a verified true original release date
+            // If we found a verified true original release date from either source
             if (result) {
               const year = result.releaseYear;
               // STRICT ERA CHECK: Only allow if it belongs in the selected decades
@@ -115,6 +122,10 @@ export default function App() {
             return null; // Silent discard
           } catch (e) {
             console.error("Verification failed for", track.title, e);
+            // If even Spotify API fails, fallback to strict era check on original data
+            if (isYearInEras(track.releaseYear, eras)) {
+              return track;
+            }
             return null;
           }
         })
@@ -124,6 +135,11 @@ export default function App() {
         if (track && validTracks.length < TARGET_COUNT) {
           validTracks.push(track);
         }
+      }
+      
+      // Crucial: Wait 600ms between batches to prevent iTunes 429 Too Many Requests
+      if (validTracks.length < TARGET_COUNT) {
+        await new Promise(r => setTimeout(r, 600));
       }
     }
 
