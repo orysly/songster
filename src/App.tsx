@@ -9,6 +9,7 @@ import { searchItunesReleaseDate } from "./services/itunesApi";
 import { fetchOriginalReleaseDate, loadDynamicSearch } from "./services/spotifyApi";
 import { cacheVerifiedTracks, fetchCachedTracks } from "./services/supabaseClient";
 import { generateSearchQueries, isYearInEras, type Era, type Genre } from "./data/builtinPlaylists";
+import { ChallengeScreen } from "./screens/ChallengeScreen";
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
 import { SetupScreen } from "./screens/SetupScreen";
@@ -289,6 +290,12 @@ export default function App() {
             onSkipTrack={skipTrack}
             onAbortGame={abortGame}
             onClearPlaybackError={player.clearError}
+          />
+        ) : game.state.phase === "challenge" && currentPlayer ? (
+          <ChallengeScreen
+            state={game.state}
+            currentPlayer={currentPlayer}
+            onSubmit={game.actions.submitChallengeVotes}
           />
         ) : game.state.phase === "tension" && currentPlayer ? (
           <TensionScreen onComplete={game.actions.revealPlacement} />

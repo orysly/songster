@@ -34,6 +34,7 @@ export type GamePhase =
   | "loadingPlaylist"
   | "ready"
   | "playing"
+  | "challenge"
   | "tension"
   | "reveal"
   | "winner";
@@ -52,6 +53,8 @@ export type TurnState = {
   hasPlayedSnippet: boolean;
   hasAppliedPoints: boolean;
   deckRunOut: boolean;
+  challenges: Record<string, "before" | "correct" | "after">;
+  challengePointsAwarded: Record<string, number>;
 };
 
 export type PlaylistMeta = {

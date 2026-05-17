@@ -4,7 +4,7 @@ import { fakeTracks } from "../data/fakeTracks";
 import { clearGameState, loadGameState, saveGameState } from "../services/storage";
 import { getRandomSnippetStartMs, shuffleTracks } from "../utils/deck";
 import { calculateRoundScore, getNextPlayerIndex, getWinner } from "../utils/scoring";
-import { insertTrackIntoTimeline, isCorrectPlacement } from "../utils/timelineRules";
+import { insertTrackIntoTimeline, isCorrectPlacement, determineChallengeResult } from "../utils/timelineRules";
 import { dedupeTracks } from "../utils/spotifyTrack";
 
 const defaultSettings: GameSettings = {
@@ -26,7 +26,9 @@ const emptyTurn = {
   snippetStartMs: null,
   hasPlayedSnippet: false,
   hasAppliedPoints: false,
-  deckRunOut: false
+  deckRunOut: false,
+  challenges: {},
+  challengePointsAwarded: {}
 };
 
 function createInitialState(): GameState {
@@ -111,7 +113,9 @@ function drawTrack(state: GameState): GameState {
       snippetStartMs: getRandomSnippetStartMs(currentTrack.durationMs, state.settings.snippetSeconds),
       hasPlayedSnippet: false,
       hasAppliedPoints: false,
-      deckRunOut: false
+      deckRunOut: false,
+      challenges: {},
+      challengePointsAwarded: {}
     }
   };
 }
@@ -245,7 +249,7 @@ export function useGameState() {
       return {
         ...current,
         players,
-        phase: "tension", // Transition to tension phase first!
+        phase: "challenge", // Transition to challenge phase first!
         turn: {
           ...current.turn,
           doubleOrNothing: isDoubleOrNothing,
@@ -258,13 +262,38 @@ export function useGameState() {
     });
   }
 
+  function submitChallengeVotes(votes: Record<string, "before" | "correct" | "after">) {
+    setState((current) => ({
+      ...current,
+      phase: "tension", // Transition to tension heartbeat screen
+      turn: {
+        ...current.turn,
+        challenges: votes
+      }
+    }));
+  }
+
   function revealPlacement() {
     setState((current) => {
+      const player = current.players[current.turn.currentPlayerIndex];
+      const track = current.turn.currentTrack;
+      const insertionIndex = current.turn.selectedInsertionIndex;
+      if (!player || !track || insertionIndex === null) return current;
+
+      // Calculate challenges outcome
+      const correctChallengeValue = determineChallengeResult(player.timeline, track, insertionIndex);
+      const challengePointsAwarded: Record<string, number> = {};
+      
+      Object.entries(current.turn.challenges).forEach(([playerId, guess]) => {
+        challengePointsAwarded[playerId] = guess === correctChallengeValue ? 2 : -2;
+      });
+
       return {
         ...current,
         phase: "reveal",
         turn: {
           ...current.turn,
+          challengePointsAwarded,
           pointsAwarded: calculateRoundScore({ 
             placementCorrect: Boolean(current.turn.placementCorrect), 
             artistCorrect: false, 
@@ -314,11 +343,16 @@ export function useGameState() {
       });
 
       const players = current.players.map((candidate) => {
-        if (candidate.id !== player.id) return candidate;
-        const newScore = Math.max(0, candidate.score + points); // Prevent negative score if desired, or let it ride. User said "lose 5, 10, 15", we'll allow it to go negative but floor it to 0 just in case it looks weird, actually let's allow negative.
+        const challengePoints = current.turn.challengePointsAwarded[candidate.id] ?? 0;
+        if (candidate.id !== player.id) {
+          return {
+            ...candidate,
+            score: candidate.score + challengePoints
+          };
+        }
         return {
           ...candidate,
-          score: candidate.score + points,
+          score: candidate.score + points + challengePoints, // Just in case, though they shouldn't challenge themselves
           timeline: current.turn.placementCorrect
             ? insertTrackIntoTimeline(candidate.timeline, track, insertionIndex)
             : candidate.timeline
@@ -490,6 +524,7 @@ export function useGameState() {
       markSnippetPlayed,
       selectInsertion,
       lockPlacement,
+      submitChallengeVotes,
       revealPlacement,
       setScoreToggle,
       applyPoints,

@@ -2,7 +2,7 @@ import { ExternalLink, X } from "lucide-react";
 import { ScoreToggle } from "../components/game/ScoreToggle";
 import { Button } from "../components/shared/Button";
 import type { GameState, Player } from "../types/game";
-import { getCorrectInsertionRange } from "../utils/timelineRules";
+import { getCorrectInsertionRange, determineChallengeResult } from "../utils/timelineRules";
 
 type Props = {
   state: GameState;
@@ -146,6 +146,48 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
           {state.turn.pointsAwarded > 0 ? "+" : ""}{state.turn.pointsAwarded}
         </p>
       </section>
+
+      {(() => {
+        const challengers = state.players.filter((p) => p.id !== currentPlayer.id);
+        if (challengers.length === 0 || Object.keys(state.turn.challenges).length === 0) return null;
+
+        const correctChallengeValue = determineChallengeResult(currentPlayer.timeline, track, state.turn.selectedInsertionIndex ?? 0);
+        
+        const labelMap = {
+          before: "Before (Older)",
+          correct: "Spot On",
+          after: "After (Newer)"
+        };
+
+        return (
+          <section className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
+            <h3 className="text-lg font-black text-white mb-2">Challenge Predictions</h3>
+            <p className="text-sm text-white/60 mb-4">
+              Correct slot prediction: <span className="font-black text-brand-500 uppercase tracking-widest">{labelMap[correctChallengeValue]}</span>
+            </p>
+            <div className="space-y-2">
+              {challengers.map((challenger) => {
+                const vote = state.turn.challenges[challenger.id];
+                const points = state.turn.challengePointsAwarded[challenger.id] ?? 0;
+                const isCorrect = vote === correctChallengeValue;
+
+                return (
+                  <div key={challenger.id} className="flex items-center justify-between rounded-xl bg-ink/40 p-3 ring-1 ring-white/5">
+                    <div>
+                      <p className="font-bold text-sm">{challenger.name}</p>
+                      <p className="text-xs text-white/45">Voted: {vote ? labelMap[vote] : "None"}</p>
+                    </div>
+                    <span className={`font-black text-sm px-3 py-1 rounded-lg ${isCorrect ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/30 shadow-glow shadow-green-500/10 animate-pulse" : "bg-brand-500/20 text-brand-500 ring-1 ring-brand-500/30"}`}>
+                      {points >= 0 ? "+" : ""}{points} pts
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
+
       <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
         {state.turn.hasAppliedPoints ? (
           <Button className="w-full" onClick={onNextPlayer}>

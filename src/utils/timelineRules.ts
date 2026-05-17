@@ -13,6 +13,21 @@ export function isCorrectPlacement(
   return afterPrevious && beforeNext;
 }
 
+export function determineChallengeResult(
+  timeline: Track[],
+  track: Track,
+  insertionIndex: number
+): "before" | "correct" | "after" {
+  if (isCorrectPlacement(timeline, track, insertionIndex)) {
+    return "correct";
+  }
+  const previous = timeline[insertionIndex - 1];
+  if (previous && track.releaseYear < previous.releaseYear) {
+    return "before";
+  }
+  return "after";
+}
+
 export function getCorrectInsertionRange(
   timeline: Track[],
   track: Track
