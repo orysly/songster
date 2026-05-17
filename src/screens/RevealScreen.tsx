@@ -104,16 +104,43 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
           </div>
         </div>
 
-        {state.turn.doubleOrNothing && (
-          <div className="mt-4 rounded-xl bg-brand-500/20 p-4 text-center ring-1 ring-brand-500 shadow-glow">
-            <p className="font-black text-brand-500 uppercase tracking-widest text-sm">Double or Nothing Active</p>
-            <p className="mt-1 text-sm text-brand-500/80">
-              {state.turn.pointsAwarded === 30 
-                ? "Perfect! You win 30 points!" 
-                : "Imperfect! You lose points."}
-            </p>
-          </div>
-        )}
+        {(() => {
+          if (!state.turn.doubleOrNothing) return null;
+
+          const incorrectGuesses: string[] = [];
+          if (!placementCorrect) incorrectGuesses.push("Timeline Placement");
+          if (!state.turn.artistCorrect) incorrectGuesses.push("Artist Name");
+          if (!state.turn.titleCorrect) incorrectGuesses.push("Song Title");
+
+          const incorrectCount = incorrectGuesses.length;
+          const lostPoints = incorrectCount * 5;
+
+          return (
+            <div className="mt-4 rounded-xl bg-brand-500/20 p-4 ring-1 ring-brand-500 shadow-glow">
+              <p className="font-black text-brand-500 uppercase tracking-widest text-sm">🔥 Double or Nothing Active 🔥</p>
+              {incorrectCount === 0 ? (
+                <p className="mt-1 text-sm text-brand-500/90 font-bold">
+                  Perfect! You got all 3 right and win +30 points!
+                </p>
+              ) : (
+                <div className="mt-2 text-sm text-brand-500/90 text-left space-y-1">
+                  <p className="font-bold text-center">Imperfect guess! You lose points.</p>
+                  <p className="text-white/80 mt-1">
+                    You missed <span className="font-bold text-brand-500">{incorrectCount}</span> {incorrectCount === 1 ? "guess" : "guesses"}:
+                  </p>
+                  <ul className="list-disc list-inside text-white/70 text-xs pl-2">
+                    {incorrectGuesses.map((g) => (
+                      <li key={g}>{g}</li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-white/60 border-t border-brand-500/20 pt-2 mt-2">
+                    Penalty: -5 points per incorrect guess = <span className="font-bold text-brand-500">-{lostPoints} points</span>.
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <p className={`mt-4 text-center text-5xl font-black ${state.turn.pointsAwarded >= 0 ? "text-white" : "text-brand-500 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)]"}`}>
           {state.turn.pointsAwarded > 0 ? "+" : ""}{state.turn.pointsAwarded}
