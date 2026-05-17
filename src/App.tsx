@@ -6,6 +6,7 @@ import { useSpotifyPlayer } from "./hooks/useSpotifyPlayer";
 import { useSpotifyPlaylist } from "./hooks/useSpotifyPlaylist";
 import { searchItunesReleaseDate } from "./services/itunesApi";
 import { fetchOriginalReleaseDate, loadDynamicSearch } from "./services/spotifyApi";
+import { cacheVerifiedTracks, fetchCachedTracks } from "./services/supabaseClient";
 import { generateSearchQueries, isYearInEras, type Era, type Genre } from "./data/builtinPlaylists";
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
@@ -66,30 +67,55 @@ export default function App() {
     const token = spotify.accessToken ?? (await spotify.refreshToken());
     if (!token) return;
 
-    const queries = generateSearchQueries(eras, genres);
+    const TARGET_COUNT = 50;
+
+    // STEP 1: Attempt to load from Supabase Cache instantly!
+    const cachedTracks = await fetchCachedTracks(eras, genres);
+    if (cachedTracks.length >= TARGET_COUNT) {
+      const displayEras = eras.length > 0 ? eras.join(", ") : "All Eras";
+      const displayGenres = genres.length > 0 ? genres.join(", ") : "All Genres";
+      
+      game.actions.addPlaylistTracks(
+        {
+          id: `cached-${Date.now()}`,
+          name: `${displayEras} ${displayGenres}`,
+          usableCount: cachedTracks.length,
+          skippedCount: 0,
+          tracks: cachedTracks.slice(0, TARGET_COUNT)
+        },
+        cachedTracks.slice(0, TARGET_COUNT)
+      );
+      return; // INSTANT START!
+    }
+
+    // STEP 2: Fallback to manual generation
+    const searchQueries = generateSearchQueries(eras, genres);
     
-    // Execute all queries in parallel to get a massive pool of raw tracks
-    const results = await Promise.all(
-      queries.map(q => loadDynamicSearch(q, token))
+    // Execute all queries in parallel and attach the era/genre metadata to each track
+    const resultsWithMeta = await Promise.all(
+      searchQueries.map(async (sq) => {
+        const res = await loadDynamicSearch(sq.query, token);
+        return { res, era: sq.era, genre: sq.genre };
+      })
     );
 
-    // Combine all tracks, remove duplicates
-    const rawTracks = results
-      .flatMap(r => r ? r.tracks : [])
-      .filter((track, index, self) => self.findIndex(t => t.id === track.id) === index);
+    // Combine all tracks and attach metadata
+    const rawTracksWithMeta = resultsWithMeta
+      .flatMap(r => r.res ? r.res.tracks.map(t => ({ track: t, era: r.era, genre: r.genre })) : [])
+      .filter((item, index, self) => self.findIndex(t => t.track.id === item.track.id) === index);
       
-    // Shuffle the raw pool so the iTunes verification hits different songs every time
-    rawTracks.sort(() => Math.random() - 0.5);
+    // Shuffle the raw pool
+    rawTracksWithMeta.sort(() => Math.random() - 0.5);
 
-    const validTracks = [];
-    const TARGET_COUNT = 50;
+    const validTracksWithMeta: { track: Track; era: Era; genre: Genre }[] = [];
     const CHUNK_SIZE = 5;
 
     // Process in batches of 5 to avoid iTunes rate limits
-    for (let i = 0; i < rawTracks.length && validTracks.length < TARGET_COUNT; i += CHUNK_SIZE) {
-      const chunk = rawTracks.slice(i, i + CHUNK_SIZE);
+    for (let i = 0; i < rawTracksWithMeta.length && validTracksWithMeta.length < TARGET_COUNT; i += CHUNK_SIZE) {
+      const chunk = rawTracksWithMeta.slice(i, i + CHUNK_SIZE);
       const verifiedChunk = await Promise.all(
-        chunk.map(async (track) => {
+        chunk.map(async (item) => {
+          const { track } = item;
           let result = null;
           
           try {
@@ -110,40 +136,41 @@ export default function App() {
               const year = result.releaseYear;
               // STRICT ERA CHECK: Only allow if it belongs in the selected decades
               if (isYearInEras(year, eras)) {
-                return { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true };
+                return { ...item, track: { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true } };
               }
               return null; // Silent discard: fell outside selected eras
             }
             
             // If neither API finds it, assume Spotify's default date is correct but still verify era!
             if (isYearInEras(track.releaseYear, eras)) {
-              return track;
+              return item;
             }
             return null; // Silent discard
           } catch (e) {
             console.error("Verification failed for", track.title, e);
             // If even Spotify API fails, fallback to strict era check on original data
             if (isYearInEras(track.releaseYear, eras)) {
-              return track;
+              return item;
             }
             return null;
           }
         })
       );
 
-      for (const track of verifiedChunk) {
-        if (track && validTracks.length < TARGET_COUNT) {
-          validTracks.push(track);
+      for (const verifiedItem of verifiedChunk) {
+        if (verifiedItem && validTracksWithMeta.length < TARGET_COUNT) {
+          validTracksWithMeta.push(verifiedItem);
         }
       }
       
       // Crucial: Wait 600ms between batches to prevent iTunes 429 Too Many Requests
-      if (validTracks.length < TARGET_COUNT) {
+      if (validTracksWithMeta.length < TARGET_COUNT) {
         await new Promise(r => setTimeout(r, 600));
       }
     }
 
-    if (validTracks.length > 0) {
+    if (validTracksWithMeta.length > 0) {
+      const validTracks = validTracksWithMeta.map(item => item.track);
       const displayEras = eras.length > 0 ? eras.join(", ") : "All Eras";
       const displayGenres = genres.length > 0 ? genres.join(", ") : "All Genres";
       
@@ -152,11 +179,14 @@ export default function App() {
           id: `curated-${Date.now()}`,
           name: `${displayEras} ${displayGenres}`,
           usableCount: validTracks.length,
-          skippedCount: rawTracks.length - validTracks.length,
+          skippedCount: rawTracksWithMeta.length - validTracks.length,
           tracks: validTracks
         },
         validTracks
       );
+      
+      // STEP 3: Push newly verified tracks to Supabase to grow the cache!
+      cacheVerifiedTracks(validTracksWithMeta).catch(console.error);
     }
   }
 

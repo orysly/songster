@@ -47,13 +47,19 @@ const GENRE_MAPPING: Record<Genre, string[]> = {
   "Hungarian": []
 };
 
+export interface SearchQuery {
+  query: string;
+  era: Era;
+  genre: Genre;
+}
+
 /**
  * Generates an array of Spotify Search API queries based on the selected Eras and Genres.
  * If multiple eras and genres are selected, it creates a Cartesian product of combinations
  * so we can fetch a diverse spread of tracks.
  */
-export function generateSearchQueries(eras: Era[], genres: Genre[]): string[] {
-  const queries: string[] = [];
+export function generateSearchQueries(eras: Era[], genres: Genre[]): SearchQuery[] {
+  const queries: SearchQuery[] = [];
   
   // Default to all if none selected, though UI shouldn't allow this
   const activeEras = eras.length > 0 ? eras : ALL_ERAS;
@@ -69,13 +75,13 @@ export function generateSearchQueries(eras: Era[], genres: Genre[]): string[] {
         for (let i = 0; i < artists.length; i += 3) {
           const chunk = artists.slice(i, i + 3);
           const artistQuery = chunk.map(a => `artist:"${a}"`).join(" OR ");
-          queries.push(`${yearFilter} ${artistQuery}`);
+          queries.push({ query: `${yearFilter} ${artistQuery}`, era, genre });
         }
       } else {
         const genreKeywords = GENRE_MAPPING[genre];
         // Pick the primary mapping
         const keyword = genreKeywords[0]; 
-        queries.push(`${yearFilter} ${keyword}`);
+        queries.push({ query: `${yearFilter} ${keyword}`, era, genre });
       }
     }
   }

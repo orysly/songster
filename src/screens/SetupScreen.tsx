@@ -11,7 +11,9 @@ import { SpotifyConnectButton } from "../components/setup/SpotifyConnectButton";
 import { BuiltInCollections } from "../components/setup/BuiltInCollections";
 import { Logo } from "../components/shared/Logo";
 import { BRAND } from "../config/brand";
+import React from "react";
 import type { Era, Genre } from "../data/builtinPlaylists";
+import { AdminScreen } from "./AdminScreen";
 
 type Props = {
   spotifyStatus: SpotifyAuthStatus;
@@ -66,11 +68,23 @@ export function SetupScreen({
   onSettingsChange,
   onStart
 }: Props) {
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  if (isAdmin) {
+    return <AdminScreen onBack={() => setIsAdmin(false)} />;
+  }
   const realStartReady = canStart && spotifyStatus === "connected";
   const developerReady = playlists.some((playlist) => playlist.id === "developer-fallback") && players.length >= 2;
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top">
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-safe-bottom pt-safe-top relative">
+      <button 
+        onClick={() => setIsAdmin(true)}
+        className="absolute top-6 right-4 text-xs font-mono text-white/20 hover:text-white/80 transition-colors z-50"
+      >
+        [dev]
+      </button>
+
       <section className="pt-6 text-white">
         <Logo />
         <h1 className="mt-5 text-5xl font-black leading-none">{BRAND.productName}</h1>
