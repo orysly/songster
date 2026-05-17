@@ -121,15 +121,17 @@ export async function loadDynamicSearch(
     const selectedOffsets = allTopOffsets
       .sort(() => Math.random() - 0.5)
       .slice(0, 5);
-    
-    const pages = await Promise.all(
-      selectedOffsets.map(offset => 
-        spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
-          `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}&market=HU`,
-          accessToken
-        ).catch(() => null) // Ignore out-of-bounds errors on smaller genres
-      )
-    );
+    const pages = [];
+    for (const offset of selectedOffsets) {
+      const page = await spotifyFetch<{ tracks: SpotifyPageResponse<SpotifyTrackObject> }>(
+        `/search?type=track&q=${encodeURIComponent(query)}&limit=10&offset=${offset}&market=HU`,
+        accessToken
+      ).catch(() => null); // Ignore out-of-bounds errors on smaller genres
+      
+      pages.push(page);
+      // Wait 300ms between page requests to avoid hitting the strict rate limit
+      await new Promise(r => setTimeout(r, 300));
+    }
 
     // Flatten all valid track items from all 5 pages
     const rawItems = pages

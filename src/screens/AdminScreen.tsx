@@ -43,7 +43,7 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
             setProgress(`Generating ${era} ${genre}... fetching from Spotify for query: ${sq.query}`);
             const res = await loadDynamicSearch(sq.query, token);
             resultsWithMeta.push({ res, era: sq.era, genre: sq.genre });
-            await new Promise(r => setTimeout(r, 1000)); // Respect Spotify rate limits
+            await new Promise(r => setTimeout(r, 2000)); // Respect Spotify rate limits (2s)
           }
 
           const rawTracksWithMeta = resultsWithMeta
