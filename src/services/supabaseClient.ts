@@ -39,8 +39,10 @@ export async function fetchCachedTracks(eras: Era[], genres: Genre[]): Promise<T
     releaseYear: row.release_year,
     durationMs: row.duration_ms,
     previewUrl: row.preview_url,
-    imageUrl: row.image_url,
+    artworkUrl: row.image_url,
     isrc: row.isrc,
+    spotifyUri: `spotify:track:${row.spotify_id}`,
+    spotifyUrl: `https://open.spotify.com/track/${row.spotify_id}`,
     isOriginalDateResolved: true // We know it's resolved because we only cache resolved tracks!
   }));
 }
@@ -57,7 +59,7 @@ export async function cacheVerifiedTracks(items: { track: Track; era: Era; genre
     era: item.era,
     genre: item.genre,
     preview_url: item.track.previewUrl,
-    image_url: item.track.imageUrl,
+    image_url: item.track.artworkUrl,
     duration_ms: item.track.durationMs,
     isrc: item.track.isrc
   }));

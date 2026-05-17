@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { Track } from "./types/game";
 import { ErrorBanner } from "./components/shared/ErrorBanner";
 import { useGameState } from "./hooks/useGameState";
 import { useSpotifyAuth } from "./hooks/useSpotifyAuth";
