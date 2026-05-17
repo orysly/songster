@@ -54,47 +54,41 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
           const validTracksWithMeta: { track: Track; era: typeof era; genre: typeof genre }[] = [];
           const CHUNK_SIZE = 5;
 
-          setProgress(`Verifying ${rawTracksWithMeta.length} raw tracks for ${era} ${genre}...`);
+          setProgress(`Verifying ${rawTracksWithMeta.length} raw tracks for ${era} ${genre}... (This takes time to respect iTunes limits)`);
 
-          for (let i = 0; i < rawTracksWithMeta.length && validTracksWithMeta.length < 50; i += CHUNK_SIZE) {
-            const chunk = rawTracksWithMeta.slice(i, i + CHUNK_SIZE);
-            const verifiedChunk = await Promise.all(
-              chunk.map(async (item) => {
-                const { track } = item;
-                let result = null;
-                try {
-                  result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
-                } catch (e) {}
+          // Process STRICTLY SEQUENTIALLY to avoid iTunes 429 Too Many Requests
+          for (let i = 0; i < rawTracksWithMeta.length && validTracksWithMeta.length < 50; i++) {
+            const item = rawTracksWithMeta[i];
+            const { track } = item;
+            let result = null;
+            
+            try {
+              result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
+            } catch (e) {}
 
-                try {
-                  if (!result && track.isrc) {
-                    result = await fetchOriginalReleaseDate(track.isrc, token);
-                  }
-                  if (result) {
-                    const year = result.releaseYear;
-                    if (isYearInEras(year, [era])) {
-                      return { ...item, track: { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true } };
-                    }
-                    return null;
-                  }
-                  if (isYearInEras(track.releaseYear, [era])) return item;
-                  return null;
-                } catch (e) {
-                  if (isYearInEras(track.releaseYear, [era])) return item;
-                  return null;
+            try {
+              if (!result && track.isrc) {
+                result = await fetchOriginalReleaseDate(track.isrc, token);
+              }
+              if (result) {
+                const year = result.releaseYear;
+                if (isYearInEras(year, [era])) {
+                  validTracksWithMeta.push({ ...item, track: { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true } });
                 }
-              })
-            );
-
-            for (const verifiedItem of verifiedChunk) {
-              if (verifiedItem && validTracksWithMeta.length < 50) {
-                validTracksWithMeta.push(verifiedItem);
+              } else {
+                if (isYearInEras(track.releaseYear, [era])) {
+                  validTracksWithMeta.push(item);
+                }
+              }
+            } catch (e) {
+              if (isYearInEras(track.releaseYear, [era])) {
+                validTracksWithMeta.push(item);
               }
             }
             
-            if (validTracksWithMeta.length < 50) {
-              await new Promise(r => setTimeout(r, 600)); // iTunes rate limit protection
-            }
+            // Wait 1.5 seconds between EVERY SINGLE TRACK. 
+            // The scraper can take as long as it needs, we just want flawless metadata.
+            await new Promise(r => setTimeout(r, 1500));
           }
 
           if (validTracksWithMeta.length > 0) {
