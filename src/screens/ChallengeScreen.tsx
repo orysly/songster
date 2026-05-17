@@ -26,17 +26,17 @@ export function ChallengeScreen({ state, currentPlayer, onSubmit }: Props) {
   let afterSub = "Newer";
 
   if (beforeYear !== null && afterYear !== null) {
-    beforeSub = `Older (< ${beforeYear})`;
+    beforeSub = `Older than ${beforeYear}`;
     correctSub = `${beforeYear} – ${afterYear}`;
-    afterSub = `Newer (> ${afterYear})`;
+    afterSub = `Newer than ${afterYear}`;
   } else if (afterYear !== null) {
-    beforeSub = `Older (< ${afterYear})`;
+    beforeSub = `Older than ${afterYear}`;
     correctSub = `Before ${afterYear}`;
-    afterSub = `Newer (> ${afterYear})`;
+    afterSub = `Newer than ${afterYear}`;
   } else if (beforeYear !== null) {
-    beforeSub = `Older (< ${beforeYear})`;
+    beforeSub = `Older than ${beforeYear}`;
     correctSub = `After ${beforeYear}`;
-    afterSub = `Newer (> ${beforeYear})`;
+    afterSub = `Newer than ${beforeYear}`;
   }
 
   function handleVote(playerId: string, option: "before" | "correct" | "after") {
