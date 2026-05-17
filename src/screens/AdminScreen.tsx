@@ -38,12 +38,13 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
           setProgress(`Generating ${era} ${genre}... fetching from Spotify...`);
           const searchQueries = generateSearchQueries([era], [genre]);
           
-          const resultsWithMeta = await Promise.all(
-            searchQueries.map(async (sq) => {
-              const res = await loadDynamicSearch(sq.query, token);
-              return { res, era: sq.era, genre: sq.genre };
-            })
-          );
+          const resultsWithMeta = [];
+          for (const sq of searchQueries) {
+            setProgress(`Generating ${era} ${genre}... fetching from Spotify for query: ${sq.query}`);
+            const res = await loadDynamicSearch(sq.query, token);
+            resultsWithMeta.push({ res, era: sq.era, genre: sq.genre });
+            await new Promise(r => setTimeout(r, 1000)); // Respect Spotify rate limits
+          }
 
           const rawTracksWithMeta = resultsWithMeta
             .flatMap(r => r.res ? r.res.tracks.map(t => ({ track: t, era: r.era, genre: r.genre })) : [])
