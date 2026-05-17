@@ -80,5 +80,5 @@ export type RoundScoreInput = {
   placementCorrect: boolean;
   artistCorrect: boolean;
   titleCorrect: boolean;
-  doubleOrNothing: boolean;
+  doubleOrNothing?: boolean;
 };

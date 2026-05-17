@@ -120,16 +120,32 @@ describe("timeline rules", () => {
 });
 
 describe("scoring", () => {
-  it("gates artist and title points behind correct placement", () => {
-    expect(calculateRoundScore({ placementCorrect: false, artistCorrect: true, titleCorrect: true })).toBe(0);
+  it("awards independent points for timeline, artist, and title in standard mode", () => {
+    // 0 correct = 0
+    expect(calculateRoundScore({ placementCorrect: false, artistCorrect: false, titleCorrect: false })).toBe(0);
+    // 2 correct = 10 (artist + title correct, placement wrong)
+    expect(calculateRoundScore({ placementCorrect: false, artistCorrect: true, titleCorrect: true })).toBe(10);
+    // 1 correct = 5
     expect(calculateRoundScore({ placementCorrect: true, artistCorrect: false, titleCorrect: false })).toBe(5);
+    // 3 correct = 15
     expect(calculateRoundScore({ placementCorrect: true, artistCorrect: true, titleCorrect: true })).toBe(15);
+  });
+
+  it("calculates Double or Nothing correctly", () => {
+    // 3/3 correct = +30
+    expect(calculateRoundScore({ placementCorrect: true, artistCorrect: true, titleCorrect: true, doubleOrNothing: true })).toBe(30);
+    // 2/3 correct = -5 (1 incorrect)
+    expect(calculateRoundScore({ placementCorrect: true, artistCorrect: true, titleCorrect: false, doubleOrNothing: true })).toBe(-5);
+    // 1/3 correct = -10 (2 incorrect)
+    expect(calculateRoundScore({ placementCorrect: true, artistCorrect: false, titleCorrect: false, doubleOrNothing: true })).toBe(-10);
+    // 0/3 correct = -15 (3 incorrect)
+    expect(calculateRoundScore({ placementCorrect: false, artistCorrect: false, titleCorrect: false, doubleOrNothing: true })).toBe(-15);
   });
 
   it("rotates players and finds a winner", () => {
     const players = [
-      { id: "a", name: "A", score: 5, timeline: [] },
-      { id: "b", name: "B", score: 100, timeline: [] }
+      { id: "a", name: "A", score: 5, timeline: [], hasUsedDoubleOrNothing: false },
+      { id: "b", name: "B", score: 100, timeline: [], hasUsedDoubleOrNothing: false }
     ];
     expect(getNextPlayerIndex(players, 0)).toBe(1);
     expect(getNextPlayerIndex(players, 1)).toBe(0);
