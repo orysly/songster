@@ -20,6 +20,7 @@ export type Player = {
   name: string;
   score: number;
   timeline: Track[];
+  hasUsedDoubleOrNothing: boolean;
 };
 
 export type GameSettings = {
@@ -33,7 +34,7 @@ export type GamePhase =
   | "loadingPlaylist"
   | "ready"
   | "playing"
-  | "placementLocked"
+  | "tension"
   | "reveal"
   | "winner";
 
@@ -42,6 +43,7 @@ export type TurnState = {
   roundNumber: number;
   currentTrack: Track | null;
   selectedInsertionIndex: number | null;
+  doubleOrNothing: boolean;
   placementCorrect: boolean | null;
   artistCorrect: boolean;
   titleCorrect: boolean;
@@ -78,4 +80,5 @@ export type RoundScoreInput = {
   placementCorrect: boolean;
   artistCorrect: boolean;
   titleCorrect: boolean;
+  doubleOrNothing: boolean;
 };

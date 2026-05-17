@@ -63,49 +63,61 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
       </section>
       <section className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
         <p className={`text-xl font-black ${placementCorrect ? "text-white" : "text-white/55"}`}>
-          Timeline placement: {placementCorrect ? "+5" : "0"}
+          Timeline placement: {placementCorrect ? "Correct" : "Incorrect"}
         </p>
-        {!placementCorrect ? (
+        {!placementCorrect && (
           <div className="mt-2 space-y-2 text-sm leading-6 text-white/65">
-            <p>No points this round because the timeline placement was wrong.</p>
             <p>
               Correct slot range: position {correctRange.minIndex + 1}
               {correctRange.maxIndex !== correctRange.minIndex ? ` through ${correctRange.maxIndex + 1}` : ""}.
             </p>
           </div>
-        ) : (
-          <>
-            <div className="mt-4 space-y-2">
-              <ScoreToggle
-                label="Artist guessed correctly"
-                checked={state.turn.artistCorrect}
-                disabled={state.turn.hasAppliedPoints}
-                onChange={(value) => onToggle("artistCorrect", value)}
-              />
-              <ScoreToggle
-                label="Song title guessed correctly"
-                checked={state.turn.titleCorrect}
-                disabled={state.turn.hasAppliedPoints}
-                onChange={(value) => onToggle("titleCorrect", value)}
-              />
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-xl bg-white/10 p-3">
-                <p className="font-black">5</p>
-                <p className="text-xs text-white/55">Timeline</p>
-              </div>
-              <div className="rounded-xl bg-white/10 p-3">
-                <p className="font-black">{state.turn.artistCorrect ? 5 : 0}</p>
-                <p className="text-xs text-white/55">Artist</p>
-              </div>
-              <div className="rounded-xl bg-white/10 p-3">
-                <p className="font-black">{state.turn.titleCorrect ? 5 : 0}</p>
-                <p className="text-xs text-white/55">Title</p>
-              </div>
-            </div>
-          </>
         )}
-        <p className="mt-4 text-center text-4xl font-black text-white">+{state.turn.pointsAwarded}</p>
+        
+        <div className="mt-4 space-y-2">
+          <ScoreToggle
+            label="Artist guessed correctly"
+            checked={state.turn.artistCorrect}
+            disabled={state.turn.hasAppliedPoints}
+            onChange={(value) => onToggle("artistCorrect", value)}
+          />
+          <ScoreToggle
+            label="Song title guessed correctly"
+            checked={state.turn.titleCorrect}
+            disabled={state.turn.hasAppliedPoints}
+            onChange={(value) => onToggle("titleCorrect", value)}
+          />
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-white/10 p-3">
+            <p className="font-black">{placementCorrect ? 5 : 0}</p>
+            <p className="text-xs text-white/55">Timeline</p>
+          </div>
+          <div className="rounded-xl bg-white/10 p-3">
+            <p className="font-black">{state.turn.artistCorrect ? 5 : 0}</p>
+            <p className="text-xs text-white/55">Artist</p>
+          </div>
+          <div className="rounded-xl bg-white/10 p-3">
+            <p className="font-black">{state.turn.titleCorrect ? 5 : 0}</p>
+            <p className="text-xs text-white/55">Title</p>
+          </div>
+        </div>
+
+        {state.turn.doubleOrNothing && (
+          <div className="mt-4 rounded-xl bg-brand-500/20 p-4 text-center ring-1 ring-brand-500 shadow-glow">
+            <p className="font-black text-brand-500 uppercase tracking-widest text-sm">Double or Nothing Active</p>
+            <p className="mt-1 text-sm text-brand-500/80">
+              {state.turn.pointsAwarded === 30 
+                ? "Perfect! You win 30 points!" 
+                : "Imperfect! You lose points."}
+            </p>
+          </div>
+        )}
+
+        <p className={`mt-4 text-center text-5xl font-black ${state.turn.pointsAwarded >= 0 ? "text-white" : "text-brand-500 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)]"}`}>
+          {state.turn.pointsAwarded > 0 ? "+" : ""}{state.turn.pointsAwarded}
+        </p>
       </section>
       <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
         {state.turn.hasAppliedPoints ? (

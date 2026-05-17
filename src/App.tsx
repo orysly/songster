@@ -12,6 +12,7 @@ import { generateSearchQueries, isYearInEras, type Era, type Genre } from "./dat
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
 import { SetupScreen } from "./screens/SetupScreen";
+import { TensionScreen } from "./screens/TensionScreen";
 import { WinnerScreen } from "./screens/WinnerScreen";
 
 export default function App() {
@@ -289,6 +290,8 @@ export default function App() {
             onAbortGame={abortGame}
             onClearPlaybackError={player.clearError}
           />
+        ) : game.state.phase === "tension" && currentPlayer ? (
+          <TensionScreen onComplete={game.actions.revealPlacement} />
         ) : game.state.phase === "reveal" && currentPlayer ? (
           <RevealScreen
             state={game.state}

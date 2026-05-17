@@ -3,13 +3,25 @@ import type { Player, RoundScoreInput } from "../types/game";
 export function calculateRoundScore({
   placementCorrect,
   artistCorrect,
-  titleCorrect
+  titleCorrect,
+  doubleOrNothing
 }: RoundScoreInput): number {
-  if (!placementCorrect) return 0;
-  let total = 5;
-  if (artistCorrect) total += 5;
-  if (titleCorrect) total += 5;
-  return total;
+  let correctCount = 0;
+  if (placementCorrect) correctCount++;
+  if (artistCorrect) correctCount++;
+  if (titleCorrect) correctCount++;
+
+  if (doubleOrNothing) {
+    if (correctCount === 3) {
+      return 30; // Double points for guessing everything correctly
+    } else {
+      // Lose 5 points per incorrect guess
+      return (3 - correctCount) * -5;
+    }
+  }
+
+  // Standard mode: independent points for every correct guess
+  return correctCount * 5;
 }
 
 export function getNextPlayerIndex(players: Player[], currentPlayerIndex: number): number {

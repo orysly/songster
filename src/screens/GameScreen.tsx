@@ -1,4 +1,4 @@
-import { Check, SkipForward, X } from "lucide-react";
+import { Check, SkipForward, X, Flame } from "lucide-react";
 import { MysteryTrackCard } from "../components/game/MysteryTrackCard";
 import { Timeline } from "../components/game/Timeline";
 import { Button } from "../components/shared/Button";
@@ -13,7 +13,7 @@ type Props = {
   playbackError: PlaybackError | null;
   isPlaying: boolean;
   onPlay: () => void;
-  onLockPlacement: () => void;
+  onLockPlacement: (isDoubleOrNothing?: boolean) => void;
   onSelectInsertion: (index: number) => void;
   onSkipTrack: () => void;
   onAbortGame: () => void;
@@ -70,13 +70,25 @@ export function GameScreen({
         selectedInsertionIndex={selected}
         onSelectInsertion={onSelectInsertion}
       />
-      <div className="sticky bottom-0 -mx-4 grid grid-cols-2 gap-2 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
-        <Button variant="ghost" icon={<SkipForward className="h-5 w-5" />} onClick={onSkipTrack}>
-          Skip track
-        </Button>
-        <Button disabled={!canLock} icon={<Check className="h-5 w-5" />} onClick={onLockPlacement}>
-          Lock placement
-        </Button>
+      <div className="sticky bottom-0 -mx-4 grid gap-3 bg-gradient-to-t from-ink via-ink to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-8">
+        {!currentPlayer.hasUsedDoubleOrNothing && (
+          <Button
+            disabled={!canLock}
+            className={`w-full min-h-14 justify-center bg-brand-500 font-black tracking-widest uppercase hover:bg-brand-400 shadow-lg shadow-brand-500/20 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] border border-white/20 text-white transition-opacity ${!canLock ? "opacity-50" : "animate-pulse"}`}
+            onClick={() => onLockPlacement(true)}
+            icon={<Flame className="h-5 w-5" />}
+          >
+            Double or Nothing!
+          </Button>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="ghost" icon={<SkipForward className="h-5 w-5" />} onClick={onSkipTrack}>
+            Skip (-5 pts)
+          </Button>
+          <Button disabled={!canLock} icon={<Check className="h-5 w-5" />} onClick={() => onLockPlacement(false)}>
+            Lock placement
+          </Button>
+        </div>
       </div>
     </main>
   );

@@ -18,6 +18,7 @@ const emptyTurn = {
   roundNumber: 1,
   currentTrack: null,
   selectedInsertionIndex: null,
+  doubleOrNothing: false,
   placementCorrect: null,
   artistCorrect: false,
   titleCorrect: false,
@@ -101,6 +102,7 @@ function drawTrack(state: GameState): GameState {
       ...state.turn,
       currentTrack,
       selectedInsertionIndex: null,
+      doubleOrNothing: false,
       placementCorrect: null,
       artistCorrect: false,
       titleCorrect: false,
@@ -132,7 +134,7 @@ export function useGameState() {
     if (!trimmed) return;
     setState((current) => ({
       ...current,
-      players: [...current.players, { id: createId("player"), name: trimmed, score: 0, timeline: [] }]
+      players: [...current.players, { id: createId("player"), name: trimmed, score: 0, timeline: [], hasUsedDoubleOrNothing: false }]
     }));
   }
 
@@ -224,22 +226,50 @@ export function useGameState() {
     }));
   }
 
-  function lockPlacement() {
+  function lockPlacement(isDoubleOrNothing = false) {
     setState((current) => {
       const player = current.players[current.turn.currentPlayerIndex];
       const track = current.turn.currentTrack;
       const insertionIndex = current.turn.selectedInsertionIndex;
       if (!player || !track || insertionIndex === null) return current;
+      
       const placementCorrect = isCorrectPlacement(player.timeline, track, insertionIndex);
+      
+      // If double or nothing was used, deduct from the player's one-time use
+      const players = current.players.map((p) => {
+        if (p.id !== player.id) return p;
+        return { ...p, hasUsedDoubleOrNothing: p.hasUsedDoubleOrNothing || isDoubleOrNothing };
+      });
+
+      return {
+        ...current,
+        players,
+        phase: "tension", // Transition to tension phase first!
+        turn: {
+          ...current.turn,
+          doubleOrNothing: isDoubleOrNothing,
+          placementCorrect,
+          artistCorrect: false,
+          titleCorrect: false,
+          pointsAwarded: 0 // Calculated at reveal
+        }
+      };
+    });
+  }
+
+  function revealPlacement() {
+    setState((current) => {
       return {
         ...current,
         phase: "reveal",
         turn: {
           ...current.turn,
-          placementCorrect,
-          artistCorrect: false,
-          titleCorrect: false,
-          pointsAwarded: calculateRoundScore({ placementCorrect, artistCorrect: false, titleCorrect: false })
+          pointsAwarded: calculateRoundScore({ 
+            placementCorrect: Boolean(current.turn.placementCorrect), 
+            artistCorrect: false, 
+            titleCorrect: false,
+            doubleOrNothing: current.turn.doubleOrNothing
+          })
         }
       };
     });
@@ -259,7 +289,8 @@ export function useGameState() {
           pointsAwarded: calculateRoundScore({
             placementCorrect,
             artistCorrect: Boolean(nextTurn.artistCorrect),
-            titleCorrect: Boolean(nextTurn.titleCorrect)
+            titleCorrect: Boolean(nextTurn.titleCorrect),
+            doubleOrNothing: nextTurn.doubleOrNothing
           })
         }
       };
@@ -277,11 +308,13 @@ export function useGameState() {
       const points = calculateRoundScore({
         placementCorrect: current.turn.placementCorrect,
         artistCorrect: current.turn.artistCorrect,
-        titleCorrect: current.turn.titleCorrect
+        titleCorrect: current.turn.titleCorrect,
+        doubleOrNothing: current.turn.doubleOrNothing
       });
 
       const players = current.players.map((candidate) => {
         if (candidate.id !== player.id) return candidate;
+        const newScore = Math.max(0, candidate.score + points); // Prevent negative score if desired, or let it ride. User said "lose 5, 10, 15", we'll allow it to go negative but floor it to 0 just in case it looks weird, actually let's allow negative.
         return {
           ...candidate,
           score: candidate.score + points,
@@ -318,16 +351,23 @@ export function useGameState() {
   }
 
   function skipTrack(keepTurn = true) {
-    setState((current) =>
-      drawTrack({
+    setState((current) => {
+      // If skip occurs, deduct 5 points from the current player
+      const players = current.players.map((p, index) => {
+        if (index !== current.turn.currentPlayerIndex) return p;
+        return { ...p, score: p.score - 5 };
+      });
+
+      return drawTrack({
         ...current,
+        players,
         turn: {
           ...emptyTurn,
           currentPlayerIndex: keepTurn ? current.turn.currentPlayerIndex : getNextPlayerIndex(current.players, current.turn.currentPlayerIndex),
           roundNumber: current.turn.roundNumber
         }
-      })
-    );
+      });
+    });
   }
 
   function playAgainSamePlayers() {
@@ -449,6 +489,7 @@ export function useGameState() {
       markSnippetPlayed,
       selectInsertion,
       lockPlacement,
+      revealPlacement,
       setScoreToggle,
       applyPoints,
       nextPlayer,
