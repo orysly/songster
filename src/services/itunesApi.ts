@@ -21,8 +21,15 @@ export async function searchItunesReleaseDate(
     const cleanTitle = title.split(/[-(\[]/)[0].trim();
     const query = encodeURIComponent(`${cleanTitle} ${artist}`);
     
-    const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`);
-    if (!response.ok) return null;
+    let response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`).catch(() => null);
+    
+    // If rate-limited or blocked by CORS, try via a proxy
+    if (!response || !response.ok) {
+      console.warn(`Direct iTunes fetch failed for ${title}, falling back to proxy...`);
+      response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`)}`).catch(() => null);
+    }
+
+    if (!response || !response.ok) return null;
     
     const data = (await response.json()) as ItunesResponse;
     if (!data || data.resultCount === 0) return null;

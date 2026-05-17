@@ -81,9 +81,9 @@ export function AdminScreen({ onBack }: { onBack: () => void }) {
               // SILENTLY DISCARD ON ERROR. We only want 100% verified tracks.
             }
             
-            // Wait 1.5 seconds between EVERY SINGLE TRACK. 
+            // Wait 2.5 seconds between EVERY SINGLE TRACK. 
             // The scraper can take as long as it needs, we just want flawless metadata.
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 2500));
           }
 
           if (validTracksWithMeta.length > 0) {
