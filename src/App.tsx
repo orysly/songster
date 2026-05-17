@@ -96,18 +96,18 @@ export default function App() {
     }
 
     // STEP 2: Fallback to manual generation
-    let activeEras = eras;
-    let activeGenres = genres;
-    
     // If it's an "All Time" request but the cache was empty, we can't scrape 66 combos.
-    // Pick 2 random eras and 2 random genres as a rapid fallback to start the game quickly.
+    // So we just generate 2 unconstrained queries (which fetches all 10 top offset pages from Spotify)
+    // to grab 100 pure random legendary hits from Spotify!
+    let searchQueries = [];
     if (eras.length === 0 && genres.length === 0) {
-      const { ALL_ERAS, ALL_GENRES } = await import("./data/builtinPlaylists");
-      activeEras = [...ALL_ERAS].sort(() => Math.random() - 0.5).slice(0, 2);
-      activeGenres = [...ALL_GENRES].sort(() => Math.random() - 0.5).slice(0, 2);
+      searchQueries = [
+        { query: `year:1950-2024`, era: "All Time" as any, genre: "Greatest Hits" as any },
+        { query: `year:1950-2024`, era: "All Time" as any, genre: "Greatest Hits" as any }
+      ];
+    } else {
+      searchQueries = generateSearchQueries(eras, genres);
     }
-
-    const searchQueries = generateSearchQueries(activeEras, activeGenres);
     
     // Execute all queries in parallel and attach the era/genre metadata to each track
     const resultsWithMeta = await Promise.all(
