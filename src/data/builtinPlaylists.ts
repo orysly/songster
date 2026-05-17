@@ -23,6 +23,15 @@ export function isYearInEras(year: number, eras: Era[]): boolean {
   });
 }
 
+const HUNGARIAN_ARTISTS_BY_ERA: Record<Era, string[]> = {
+  "1960s": ["Illés", "Omega", "Metro", "Kovács Kati", "Zalatnay Sarolta", "Szécsi Pál", "Koncz Zsuzsa"],
+  "1970s": ["Locomotiv GT", "Omega", "Piramis", "Neoton Família", "Kovács Kati", "Demjén Ferenc", "Cserháti Zsuzsa", "Skorpió", "Máté Péter"],
+  "1980s": ["Edda Művek", "Bikini", "Első Emelet", "R-GO", "Dolly Roll", "KFT", "Neoton Família", "Zoltán Erika", "V-Moto Rock", "Korda György", "Hobo Blues Band"],
+  "1990s": ["Ákos", "Republic", "Kispál és a Borz", "Hip Hop Boyz", "Happy Gang", "Animal Cannibals", "Kozmix", "Zámbó Jimmy", "Charlie", "TNT", "Bonanza Banzai", "Sub Bass Monster"],
+  "2000s": ["Magna Cum Laude", "Tankcsapda", "Quimby", "Hooligans", "Kowalsky meg a Vega", "Nox", "Zséda", "Majka", "Belga", "Emilio", "V-Tech", "Groovehouse"],
+  "2010s": ["Halott Pénz", "Wellhello", "Punnany Massif", "Bagossy Brothers Company", "Follow The Flow", "Majka", "Kowalsky meg a Vega", "Margaret Island", "ByeAlex", "Rúzsa Magdolna", "Kelemen Kabátban"]
+};
+
 const GENRE_MAPPING: Record<Genre, string[]> = {
   "Pop": ["genre:pop", "genre:dance pop"],
   "Rock": ["genre:rock", "genre:classic rock"],
@@ -34,8 +43,8 @@ const GENRE_MAPPING: Record<Genre, string[]> = {
   "Country": ["genre:country", "genre:contemporary country"],
   "Metal": ["genre:metal", "genre:hard rock"],
   "Jazz": ["genre:jazz", "genre:vocal jazz"],
-  // For Hungarian, we use a broad OR query to capture pop, rock, and alternative hits
-  "Hungarian": ["genre:hungarian OR genre:hungarian pop OR genre:hungarian rock OR genre:classic hungarian pop"]
+  // Hungarian is now handled via hardcoded artists per era
+  "Hungarian": []
 };
 
 /**
@@ -54,11 +63,20 @@ export function generateSearchQueries(eras: Era[], genres: Genre[]): string[] {
     const yearFilter = `year:${ERA_YEAR_RANGES[era]}`;
     
     for (const genre of activeGenres) {
-      const genreKeywords = GENRE_MAPPING[genre];
-      // Pick the primary mapping or cycle through them
-      const keyword = genreKeywords[0]; 
-      
-      queries.push(`${yearFilter} ${keyword}`);
+      if (genre === "Hungarian") {
+        const artists = HUNGARIAN_ARTISTS_BY_ERA[era];
+        // Chunk artists into groups of 3 to avoid query length limits
+        for (let i = 0; i < artists.length; i += 3) {
+          const chunk = artists.slice(i, i + 3);
+          const artistQuery = chunk.map(a => `artist:"${a}"`).join(" OR ");
+          queries.push(`${yearFilter} ${artistQuery}`);
+        }
+      } else {
+        const genreKeywords = GENRE_MAPPING[genre];
+        // Pick the primary mapping
+        const keyword = genreKeywords[0]; 
+        queries.push(`${yearFilter} ${keyword}`);
+      }
     }
   }
 
