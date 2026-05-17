@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Users, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import type { GameState, Player } from "../types/game";
+import { Timeline } from "../components/game/Timeline";
 
 type Props = {
   state: GameState;
@@ -59,6 +60,18 @@ export function ChallengeScreen({ state, currentPlayer, onSubmit }: Props) {
           Other players, predict where the song actually belongs!
         </p>
       </header>
+
+      {/* Decision Reference Timeline */}
+      <div className="pointer-events-none opacity-95">
+        <p className="text-xs font-black uppercase tracking-wider text-white/45 mb-2 pl-1">
+          {currentPlayer.name}&apos;s locked timeline reference
+        </p>
+        <Timeline
+          timeline={currentPlayer.timeline}
+          selectedInsertionIndex={selectedIndex}
+          onSelectInsertion={() => {}}
+        />
+      </div>
 
       {/* Decision Context Card */}
       <section className="rounded-2xl bg-white/5 border border-white/10 p-5 space-y-4 shadow-xl">

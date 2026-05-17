@@ -151,12 +151,37 @@ export function RevealScreen({ state, currentPlayer, onToggle, onApplyPoints, on
         const challengers = state.players.filter((p) => p.id !== currentPlayer.id);
         if (challengers.length === 0 || Object.keys(state.turn.challenges).length === 0) return null;
 
-        const correctChallengeValue = determineChallengeResult(currentPlayer.timeline, track, state.turn.selectedInsertionIndex ?? 0);
+        const selectedIndex = state.turn.selectedInsertionIndex ?? 0;
+        const previousTrack = currentPlayer.timeline[selectedIndex - 1];
+        const nextTrack = currentPlayer.timeline[selectedIndex];
+
+        const beforeYear = previousTrack ? previousTrack.releaseYear : null;
+        const afterYear = nextTrack ? nextTrack.releaseYear : null;
+
+        let beforeLabel = "Older";
+        let correctLabel = "Spot On";
+        let afterLabel = "Newer";
+
+        if (beforeYear !== null && afterYear !== null) {
+          beforeLabel = `Older than ${beforeYear}`;
+          correctLabel = `${beforeYear} – ${afterYear}`;
+          afterLabel = `Newer than ${afterYear}`;
+        } else if (afterYear !== null) {
+          beforeLabel = `Older than ${afterYear}`;
+          correctLabel = `Before ${afterYear}`;
+          afterLabel = `Newer than ${afterYear}`;
+        } else if (beforeYear !== null) {
+          beforeLabel = `Older than ${beforeYear}`;
+          correctLabel = `After ${beforeYear}`;
+          afterLabel = `Newer than ${beforeYear}`;
+        }
+
+        const correctChallengeValue = determineChallengeResult(currentPlayer.timeline, track, selectedIndex);
         
         const labelMap = {
-          before: "Before (Older)",
-          correct: "Spot On",
-          after: "After (Newer)"
+          before: beforeLabel,
+          correct: correctLabel,
+          after: afterLabel
         };
 
         return (
