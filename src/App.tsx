@@ -6,7 +6,7 @@ import { useSpotifyPlayer } from "./hooks/useSpotifyPlayer";
 import { useSpotifyPlaylist } from "./hooks/useSpotifyPlaylist";
 import { searchItunesReleaseDate } from "./services/itunesApi";
 import { fetchOriginalReleaseDate, loadDynamicSearch } from "./services/spotifyApi";
-import { generateSearchQueries, type Era, type Genre } from "./data/builtinPlaylists";
+import { generateSearchQueries, isYearInEras, type Era, type Genre } from "./data/builtinPlaylists";
 import { GameScreen } from "./screens/GameScreen";
 import { RevealScreen } from "./screens/RevealScreen";
 import { SetupScreen } from "./screens/SetupScreen";
@@ -68,28 +68,79 @@ export default function App() {
 
     const queries = generateSearchQueries(eras, genres);
     
-    // We will track how many succeeded so we don't spam errors if only one fails
-    let successCount = 0;
-    
-    // Execute all queries in parallel for speed
+    // Execute all queries in parallel to get a massive pool of raw tracks
     const results = await Promise.all(
       queries.map(q => loadDynamicSearch(q, token))
     );
 
-    for (const result of results) {
-      if (result && result.tracks.length > 0) {
-        successCount++;
-        game.actions.addPlaylistTracks(
-          {
-            id: result.id,
-            name: result.name,
-            usableCount: result.tracks.length,
-            skippedCount: result.skippedCount,
-            tracks: result.tracks
-          },
-          result.tracks
-        );
+    // Combine all tracks, remove duplicates
+    const rawTracks = results
+      .flatMap(r => r ? r.tracks : [])
+      .filter((track, index, self) => self.findIndex(t => t.id === track.id) === index);
+      
+    // Shuffle the raw pool so the iTunes verification hits different songs every time
+    rawTracks.sort(() => Math.random() - 0.5);
+
+    const validTracks = [];
+    const TARGET_COUNT = 50;
+    const CHUNK_SIZE = 5;
+
+    // Process in batches of 5 to avoid iTunes rate limits
+    for (let i = 0; i < rawTracks.length && validTracks.length < TARGET_COUNT; i += CHUNK_SIZE) {
+      const chunk = rawTracks.slice(i, i + CHUNK_SIZE);
+      const verifiedChunk = await Promise.all(
+        chunk.map(async (track) => {
+          try {
+            // Check iTunes first
+            let result = await searchItunesReleaseDate(track.title, track.artists[0] ?? "");
+            // Fallback to Spotify original release date lookup
+            if (!result && track.isrc) {
+              result = await fetchOriginalReleaseDate(track.isrc, token);
+            }
+            
+            // If we found a verified true original release date
+            if (result) {
+              const year = result.releaseYear;
+              // STRICT ERA CHECK: Only allow if it belongs in the selected decades
+              if (isYearInEras(year, eras)) {
+                return { ...track, releaseDate: result.releaseDate, releaseYear: year, isOriginalDateResolved: true };
+              }
+              return null; // Silent discard: fell outside selected eras
+            }
+            
+            // If neither API finds it, assume Spotify's default date is correct but still verify era!
+            if (isYearInEras(track.releaseYear, eras)) {
+              return track;
+            }
+            return null; // Silent discard
+          } catch (e) {
+            console.error("Verification failed for", track.title, e);
+            return null;
+          }
+        })
+      );
+
+      for (const track of verifiedChunk) {
+        if (track && validTracks.length < TARGET_COUNT) {
+          validTracks.push(track);
+        }
       }
+    }
+
+    if (validTracks.length > 0) {
+      const displayEras = eras.length > 0 ? eras.join(", ") : "All Eras";
+      const displayGenres = genres.length > 0 ? genres.join(", ") : "All Genres";
+      
+      game.actions.addPlaylistTracks(
+        {
+          id: `curated-${Date.now()}`,
+          name: `${displayEras} ${displayGenres}`,
+          usableCount: validTracks.length,
+          skippedCount: rawTracks.length - validTracks.length,
+          tracks: validTracks
+        },
+        validTracks
+      );
     }
   }
 

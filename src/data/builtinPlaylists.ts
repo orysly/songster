@@ -6,7 +6,7 @@ export const ALL_GENRES: Genre[] = [
   "Pop", "Rock", "Hip Hop", "R&B", "Disco", "Electronic", "Indie", "Country", "Metal", "Jazz", "Hungarian"
 ];
 
-const ERA_YEAR_RANGES: Record<Era, string> = {
+export const ERA_YEAR_RANGES: Record<Era, string> = {
   "1960s": "1960-1969",
   "1970s": "1970-1979",
   "1980s": "1980-1989",
@@ -14,6 +14,14 @@ const ERA_YEAR_RANGES: Record<Era, string> = {
   "2000s": "2000-2009",
   "2010s": "2010-2019"
 };
+
+export function isYearInEras(year: number, eras: Era[]): boolean {
+  if (eras.length === 0) return true;
+  return eras.some(era => {
+    const [start, end] = ERA_YEAR_RANGES[era].split("-").map(Number);
+    return year >= start && year <= end;
+  });
+}
 
 const GENRE_MAPPING: Record<Genre, string[]> = {
   "Pop": ["genre:pop", "genre:dance pop"],
